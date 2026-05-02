@@ -2,85 +2,109 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cassa Pro Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cassa Supermercato Pro iPad</title>
     <style>
-        :root { --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --bg: #cfd8dc; }
+        :root {
+            --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --bg: #cfd8dc;
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
 
-        /* LATO PRODOTTI */
-        #inventory-side { flex: 7; display: flex; flex-direction: column; padding: 10px; border-right: 2px solid #999; height: 100vh; }
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; overflow-y: auto; flex-grow: 1; background: #eee; padding: 10px; border-radius: 10px; }
-        
-        .p-card { background: white; border: none; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.1); border-bottom: 4px solid #90a4ae; min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .p-card:active { background: #e3f2fd; transform: scale(0.95); }
-        .p-card .emoji { font-size: 35px; display: block; }
-        .p-card .name { font-size: 10px; font-weight: bold; display: block; margin: 5px 0; height: 24px; overflow: hidden; line-height: 1; }
-        .p-card .price { font-size: 12px; color: var(--primary); font-weight: bold; }
+        /* MODALE INIZIO - COPRE TUTTO */
+        #modal-start { position: fixed; z-index: 9999; left:0; top:0; width:100%; height:100%; background:#cfd8dc; display: flex; align-items: center; justify-content: center; }
+        .box-setup { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .box-setup input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 18px; }
 
-        /* QUANTITA E TABS */
-        .qty-bar { background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* PANNELLI */
+        #inventory-side { flex: 7; display: flex; flex-direction: column; padding: 10px; border-right: 2px solid #999; }
+        #receipt-side { flex: 3.5; background: #455a64; padding: 15px; display: flex; flex-direction: column; }
+
+        /* BOTTONI QUANTITA */
+        .qty-bar { background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .btn-qty { flex: 1; padding: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 8px; background: #546e7a; color: white; }
-        #qty-display { font-size: 25px; font-weight: bold; min-width: 40px; text-align: center; color: var(--primary); }
-        .nav-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
-        .tab { padding: 15px; background: #b0bec5; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        #qty-display { font-size: 30px; font-weight: bold; padding: 0 15px; color: var(--primary); min-width: 50px; text-align: center; }
+
+        /* TABS CATEGORIE */
+        .nav-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; }
+        .tab { padding: 15px 20px; background: #b0bec5; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; white-space: nowrap; }
         .tab.active { background: var(--primary); color: white; }
 
-        /* SCONTRINO */
-        #receipt-side { flex: 3.5; background: #455a64; padding: 15px; display: flex; flex-direction: column; height: 100vh; }
-        #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
-        .r-header { text-align: center; font-size: 11px; }
-        .divider { border-top: 1px dashed #000; margin: 8px 0; }
-        .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; }
-        .r-sub { font-size: 10px; margin-bottom: 5px; padding-left: 10px; color: #555; }
-        .r-total { font-size: 22px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; }
+        /* GRIGLIA PRODOTTI */
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; overflow-y: auto; }
+        .p-card { background: white; border: none; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.1); border-bottom: 4px solid #90a4ae; }
+        .p-card:active { background: #e3f2fd; }
+        .p-card .emoji { font-size: 35px; display: block; }
+        .p-card .name { font-size: 11px; font-weight: bold; display: block; height: 28px; overflow: hidden; margin: 5px 0; }
 
-        /* MODALI */
+        /* SCONTRINO */
+        #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 5px; }
+        .r-header { text-align: center; font-size: 11px; }
+        .divider { border-top: 1px dashed #000; margin: 10px 0; }
+        .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+        .r-sub { font-size: 11px; margin-bottom: 8px; padding-left: 15px; }
+
+        /* PULSANTI AZIONE */
+        .btn { padding: 20px; border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .btn-pay { background: var(--secondary); width: 100%; margin-top: 8px; }
+        .btn-card { background: var(--warning); width: 100%; margin-top: 8px; }
+
+        /* MODALI PAGAMENTO */
         .pay-modal { display: none; position: fixed; z-index: 10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items: center; justify-content: center; }
-        .pay-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
-        .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
-        .btn-pay { background: var(--secondary); }
-        .btn-card { background: var(--warning); }
-        .v-card { padding: 15px; border-radius: 10px; color: white; font-weight: bold; border: none; margin: 5px; font-size: 12px; }
+        .pay-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; }
+        
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .v-card { padding: 20px; border-radius: 10px; color: white; font-weight: bold; border: none; }
         #pos-screen { background: #111; color: #0f0; padding: 20px; border-radius: 10px; font-family: monospace; min-height: 80px; display: flex; align-items: center; justify-content: center; border: 2px solid #444; }
     </style>
 </head>
 <body>
 
+    <!-- MODALE INIZIO -->
+    <div id="modal-start">
+        <div class="box-setup">
+            <div style="font-size: 50px;">🏪</div>
+            <h2>Apertura Cassa</h2>
+            <input type="text" id="in-store" placeholder="Nome Negozio" value="MIO MARKET">
+            <input type="text" id="in-op" placeholder="Nome Operatore" value="CASSIERE 1">
+            <input type="number" id="in-cash" placeholder="Fondo Cassa (€)" value="100">
+            <button class="btn btn-pay" onclick="avviaApp()">APRI CASSA</button>
+        </div>
+    </div>
+
     <!-- MODALE CONTANTI -->
     <div id="modal-cash" class="pay-modal">
         <div class="pay-content">
             <h2 id="txt-tot-cash">Totale: 0.00 €</h2>
-            <input type="number" id="input-ricevuto" placeholder="Somma Ricevuta" style="width:100%; padding:15px; font-size:25px; text-align:center; border:2px solid #ccc; border-radius:10px;">
-            <h1 id="txt-resto" style="color:var(--secondary); margin:15px 0;">Resto: 0.00 €</h1>
-            <button class="btn btn-pay" onclick="concludi('CONTANTI')">STAMPA SCONTRINO</button>
-            <button class="btn" style="background:#777" onclick="document.getElementById('modal-cash').style.display='none'">ANNULLA</button>
+            <input type="number" id="input-ricevuto" placeholder="Importo Ricevuto" style="width:100%; padding:20px; font-size:30px; text-align:center; border:2px solid #ccc; border-radius:10px;">
+            <h1 id="txt-resto" style="color:var(--secondary); font-size:40px; margin:20px 0;">Resto: 0.00 €</h1>
+            <button class="btn btn-pay" onclick="concludiVendita('CONTANTI')">CHIUDI VENDITA</button>
+            <button class="btn" style="background:#555; width:100%; margin-top:10px;" onclick="chiudiModale('modal-cash')">ANNULLA</button>
         </div>
     </div>
 
     <!-- MODALE SELEZIONE CARTA -->
     <div id="modal-select-card" class="pay-modal">
         <div class="pay-content">
-            <h3>Seleziona Carta</h3>
-            <div style="display:grid; grid-template-columns: 1fr 1fr;">
+            <h3>Scegli Carta</h3>
+            <div class="card-grid">
                 <button class="v-card" style="background:#eb001b" onclick="avviaPos('MASTERCARD')">MASTERCARD</button>
                 <button class="v-card" style="background:#1a1f71" onclick="avviaPos('VISA')">VISA</button>
                 <button class="v-card" style="background:#ffcc00; color:black" onclick="avviaPos('POSTEPAY')">POSTEPAY</button>
                 <button class="v-card" style="background:#007bc1" onclick="avviaPos('AMEX')">AMEX</button>
             </div>
-            <button class="btn" style="background:#777" onclick="document.getElementById('modal-select-card').style.display='none'">ANNULLA</button>
+            <button class="btn" style="background:#555; width:100%; margin-top:20px;" onclick="chiudiModale('modal-select-card')">ANNULLA</button>
         </div>
     </div>
 
     <!-- MODALE POS -->
     <div id="modal-pos" class="pay-modal">
         <div class="pay-content" style="background:#222; color:white;">
-            <div id="pos-screen">IN ATTESA CARTA...</div>
+            <div id="pos-screen">IN ATTESA...</div>
         </div>
     </div>
 
-    <!-- UI -->
+    <!-- INTERFACCIA PRINCIPALE -->
     <div id="inventory-side">
         <div class="qty-bar">
             <div id="qty-display">1</div>
@@ -98,10 +122,10 @@
         <div id="paper">
             <div class="r-header">
                 <div style="font-size:30px">🏪</div>
-                <strong>SUPERMERCATO ONLINE</strong><br>
-                VIA DELLE CLOUD, GITHUB<br>
+                <strong id="out-store">NEGOZIO</strong><br>
+                VIA ROMA 123, ITALIA<br>
                 <div id="out-date">--/--/-- --:--</div>
-                <div>OP: CASSIERE 1</div>
+                <div id="out-op">OP: -</div>
             </div>
             <div class="divider"></div>
             <div id="st-items"></div>
@@ -113,6 +137,7 @@
         </div>
         <button class="btn btn-pay" onclick="apriContanti()">PAGA CONTANTI</button>
         <button class="btn btn-card" onclick="apriSceltaCarta()">PAGA CARTA</button>
+        <button class="btn" style="background:#263238; width:100%; margin-top:8px;" onclick="chiusuraZ()">REPORT Z</button>
     </div>
 
     <script>
@@ -140,17 +165,41 @@
             {n:"Detersivo", p:5.00, i:"🧼", c:"CASA"}, {n:"Carta Ig.", p:3.00, i:"🧻", c:"CASA"}, {n:"Sapone", p:1.50, i:"🧽", c:"CASA"}, {n:"Shampoo", p:4.00, i:"🧴", c:"CASA"}, {n:"Dentifricio", p:2.50, i:"🪥", c:"CASA"}
         ];
 
+        let carrello = [];
+        let qta = 1;
+        let cassa = { inizio: 0, vendite: 0 };
+        let audioCtx = null;
 
-        let cart = [], qta = 1, audioCtx = null;
+        // FUNZIONE AVVIA (Corretta per iPad)
+        function avviaApp() {
+            const store = document.getElementById('in-store').value || "NEGOZIO";
+            const op = document.getElementById('in-op').value || "CASSIERE";
+            cassa.inizio = parseFloat(document.getElementById('in-cash').value) || 0;
 
-        window.onload = function() {
-            const cats = ['TUTTI', 'FRESCHI', 'DISPENSA', 'BEVANDE', 'MAKEUP', 'VESTITI', 'CASA'];
-            document.getElementById('tabs').innerHTML = cats.map(c => `<button class="tab" onclick="filtra('${c}', this)">${c}</button>`).join('');
-            document.getElementById('tabs').children[0].classList.add('active');
+            document.getElementById('out-store').innerText = store.toUpperCase();
+            document.getElementById('out-op').innerText = "OP: " + op.toUpperCase();
+            
+            // Nasconde la schermata di setup
+            document.getElementById('modal-start').style.display = 'none';
+
+            // Inizializza Audio al primo tocco
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            generaTab();
             filtra('TUTTI');
-            setInterval(() => { document.getElementById('out-date').innerText = new Date().toLocaleString(); }, 1000);
+            aggiornaOra();
+            setInterval(aggiornaOra, 10000);
+            
+            // Listener per il resto automatico
             document.getElementById('input-ricevuto').addEventListener('input', calcolaResto);
-        };
+        }
+
+        function generaTab() {
+            const cats = ['TUTTI', 'FRESCHI', 'DISPENSA', 'BEVANDE', 'MAKEUP', 'VESTITI', 'CASA'];
+            const cont = document.getElementById('tabs');
+            cont.innerHTML = cats.map(c => `<button class="tab" onclick="filtra('${c}', this)">${c}</button>`).join('');
+            if(cont.children[0]) cont.children[0].classList.add('active');
+        }
 
         function filtra(cat, btn) {
             const grid = document.getElementById('grid');
@@ -172,50 +221,85 @@
         function setQ(n) { qta = n; document.getElementById('qty-display').innerText = n; }
 
         function aggiungi(p) {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            let es = cart.find(i => i.n === p.n);
-            if(es) es.q += qta; else cart.push({ n: p.n, p: p.p, q: qta });
+            const es = carrello.find(i => i.n === p.n);
+            if(es) es.q += qta; else carrello.push({ n: p.n, p: p.p, q: qta });
             qta = 1; document.getElementById('qty-display').innerText = 1;
-            render(); beep(800, 0.08);
+            render();
+            beep(800, 0.08);
         }
 
         function render() {
             const cont = document.getElementById('st-items');
-            cont.innerHTML = ""; let tot = 0;
-            cart.forEach(i => {
-                let sub = i.p * i.q; tot += sub;
+            cont.innerHTML = "";
+            let tot = 0;
+            carrello.forEach(i => {
+                let sub = i.p * i.q;
+                tot += sub;
                 cont.innerHTML += `<div class="r-row"><span>${i.n}</span><span>${sub.toFixed(2)}€</span></div><div class="r-sub">${i.q} x ${i.p.toFixed(2)}</div>`;
             });
             document.getElementById('st-total').innerText = tot.toFixed(2) + " €";
         }
 
-        function apriContanti() { 
-            if(cart.length > 0) {
-                document.getElementById('txt-tot-cash').innerText = "Totale: " + document.getElementById('st-total').innerText;
-                document.getElementById('modal-cash').style.display = 'flex';
-            }
+        function apriContanti() {
+            const tot = parseFloat(document.getElementById('st-total').innerText);
+            if(tot <= 0) return;
+            document.getElementById('txt-tot-cash').innerText = "Totale: " + tot.toFixed(2) + " €";
+            document.getElementById('modal-cash').style.display = 'flex';
         }
 
         function calcolaResto() {
-            let tot = parseFloat(document.getElementById('st-total').innerText), rice = parseFloat(document.getElementById('input-ricevuto').value) || 0;
-            document.getElementById('txt-resto').innerText = "Resto: " + (rice-tot > 0 ? (rice-tot).toFixed(2) : "0.00") + " €";
+            const tot = parseFloat(document.getElementById('st-total').innerText);
+            const rice = parseFloat(document.getElementById('input-ricevuto').value) || 0;
+            const res = rice - tot;
+            document.getElementById('txt-resto').innerText = "Resto: " + (res > 0 ? res.toFixed(2) : "0.00") + " €";
         }
 
-        function apriSceltaCarta() { if(cart.length > 0) document.getElementById('modal-select-card').style.display = 'flex'; }
+        function apriSceltaCarta() {
+            if(parseFloat(document.getElementById('st-total').innerText) <= 0) return;
+            document.getElementById('modal-select-card').style.display = 'flex';
+        }
 
         function avviaPos(brand) {
             document.getElementById('modal-select-card').style.display = 'none';
             document.getElementById('modal-pos').style.display = 'flex';
-            const s = document.getElementById('pos-screen');
-            s.innerText = "CONTATTO " + brand + "...";
-            setTimeout(() => s.innerText = "AUTORIZZAZIONE...", 1500);
-            setTimeout(() => { s.innerText = "PAGAMENTO OK!"; beep(1000, 0.1); setTimeout(() => beep(1200, 0.1), 100); }, 3000);
-            setTimeout(() => { concludi(); document.getElementById('modal-pos').style.display = 'none'; }, 4500);
+            const screen = document.getElementById('pos-screen');
+            screen.innerText = "CONTATTO " + brand + "...";
+            setTimeout(() => screen.innerText = "AUTORIZZAZIONE...", 2000);
+            setTimeout(() => { 
+                screen.innerText = "PAGAMENTO OK!"; 
+                beep(1000, 0.1); setTimeout(() => beep(1200, 0.1), 100);
+            }, 4000);
+            setTimeout(() => { concludiVendita('CARTA'); chiudiModale('modal-pos'); }, 6000);
         }
 
-        function concludi() { cart = []; render(); document.getElementById('modal-cash').style.display = 'none'; document.getElementById('input-ricevuto').value = ""; alert("VENDITA CONCLUSA!"); }
+        function concludiVendita(tipo) {
+            const tot = parseFloat(document.getElementById('st-total').innerText);
+            cassa.vendite += tot;
+            carrello = [];
+            render();
+            chiudiModale('modal-cash');
+            document.getElementById('input-ricevuto').value = "";
+            alert("VENDITA CONCLUSA!");
+        }
 
-        function beep(f, d) { if(audioCtx) { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = f; g.gain.value = 0.05; o.start(); o.stop(audioCtx.currentTime + d); } }
+        function chiusuraZ() {
+            alert(`REPORT Z\nFondo: €${cassa.inizio}\nVendite: €${cassa.vendite.toFixed(2)}\nTotale: €${(cassa.inizio + cassa.vendite).toFixed(2)}`);
+        }
+
+        function chiudiModale(id) { document.getElementById(id).style.display = 'none'; }
+
+        function aggiornaOra() {
+            const n = new Date();
+            document.getElementById('out-date').innerText = n.toLocaleString();
+        }
+
+        function beep(f, d) {
+            if(!audioCtx) return;
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.value = f; g.gain.value = 0.05;
+            o.start(); o.stop(audioCtx.currentTime + d);
+        }
     </script>
 </body>
 </html>
