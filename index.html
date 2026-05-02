@@ -116,15 +116,30 @@
     </div>
 
     <script>
+        // DATABASE 100 PRODOTTI
         const prodotti = [
-            {n:"Mela", p:0.50, i:"🍎", c:"FRESCHI"}, {n:"Banana", p:0.40, i:"🍌", c:"FRESCHI"}, {n:"Pera", p:0.60, i:"🍐", c:"FRESCHI"}, {n:"Uva", p:2.00, i:"🍇", c:"FRESCHI"}, {n:"Fragola", p:3.00, i:"🍓", c:"FRESCHI"}, {n:"Arancia", p:0.50, i:"🍊", c:"FRESCHI"}, {n:"Limone", p:0.30, i:"🍋", c:"FRESCHI"}, {n:"Anguria", p:5.00, i:"🍉", c:"FRESCHI"}, {n:"Ananas", p:3.50, i:"🍍", c:"FRESCHI"}, {n:"Ciliegie", p:4.00, i:"🍒", c:"FRESCHI"},
-            {n:"Pane", p:1.20, i:"🥖", c:"FRESCHI"}, {n:"Latte", p:1.40, i:"🥛", c:"FRESCHI"}, {n:"Uova x6", p:2.10, i:"🥚", c:"FRESCHI"}, {n:"Burro", p:2.50, i:"🧈", c:"FRESCHI"}, {n:"Formaggio", p:3.50, i:"🧀", c:"FRESCHI"}, {n:"Yogurt", p:0.80, i:"🍦", c:"FRESCHI"}, {n:"Mozzarella", p:1.50, i:"⚪", c:"FRESCHI"}, {n:"Pollo", p:6.00, i:"🍗", c:"FRESCHI"}, {n:"Bistecca", p:8.00, i:"🥩", c:"FRESCHI"}, {n:"Salame", p:3.00, i:"🌭", c:"FRESCHI"},
-            {n:"Pasta", p:0.85, i:"🍝", c:"DISPENSA"}, {n:"Riso", p:2.00, i:"🍚", c:"DISPENSA"}, {n:"Caffè", p:3.50, i:"☕", c:"DISPENSA"}, {n:"Biscotti", p:2.50, i:"🍪", c:"DISPENSA"}, {n:"Cioccolato", p:1.50, i:"🍫", c:"DISPENSA"}, {n:"Olio", p:8.00, i:"🫒", c:"DISPENSA"}, {n:"Farina", p:0.90, i:"🌾", c:"DISPENSA"}, {n:"Zucchero", p:1.20, i:"🍬", c:"DISPENSA"}, {n:"Sale", p:0.50, i:"🧂", c:"DISPENSA"}, {n:"Tonno", p:4.00, i:"🍣", c:"DISPENSA"}, {n:"Patatine", p:1.50, i:"🍟", c:"DISPENSA"}, {n:"Cereali", p:3.00, i:"🥣", c:"DISPENSA"}, {n:"Miele", p:5.00, i:"🍯", c:"DISPENSA"}, {n:"Maionese", p:1.80, i:"🍶", c:"DISPENSA"}, {n:"Ketchup", p:1.50, i:"🥫", c:"DISPENSA"},
-            {n:"Acqua", p:0.40, i:"💧", c:"BEVANDE"}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE"}, {n:"Birra", p:1.50, i:"🍺", c:"BEVANDE"}, {n:"Vino", p:5.00, i:"🍷", c:"BEVANDE"}, {n:"Succo", p:1.50, i:"🧃", c:"BEVANDE"}, {n:"Fanta", p:1.70, i:"🍊", c:"BEVANDE"}, {n:"Sprite", p:1.70, i:"🍋", c:"BEVANDE"}, {n:"Energy", p:2.50, i:"⚡", c:"BEVANDE"}, {n:"The Freddo", p:1.50, i:"🍹", c:"BEVANDE"}, {n:"Spumante", p:10.0, i:"🍾", c:"BEVANDE"},
-            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP"}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP"}, {n:"Mascara", p:12.0, i:"👁️", c:"MAKEUP"}, {n:"Palette", p:25.0, i:"🎨", c:"MAKEUP"}, {n:"Profumo", p:45.0, i:"💨", c:"MAKEUP"},
-            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI"}, {n:"Jeans", p:35.0, i:"👖", c:"VESTITI"}, {n:"Gonna", p:25.0, i:"👗", c:"VESTITI"}, {n:"Scarpe", p:50.0, i:"👟", c:"VESTITI"}, {n:"Giacca", p:70.0, i:"🧥", c:"VESTITI"},
-            {n:"Detersivo", p:5.00, i:"🧼", c:"CASA"}, {n:"Carta Ig.", p:3.00, i:"🧻", c:"CASA"}, {n:"Shampoo", p:4.00, i:"🧴", c:"CASA"}, {n:"Sapone", p:1.20, i:"🧽", c:"CASA"}, {n:"Dentifricio", p:2.20, i:"🪥", c:"CASA"}
+            // FRESCHI
+            {n:"Pane", p:1.20, i:"🥖", c:"FRESCHI"}, {n:"Latte", p:1.40, i:"🥛", c:"FRESCHI"}, {n:"Uova", p:2.10, i:"🥚", c:"FRESCHI"}, {n:"Burro", p:2.50, i:"🧈", c:"FRESCHI"}, {n:"Formaggio", p:3.50, i:"🧀", c:"FRESCHI"},
+            {n:"Mela", p:0.50, i:"🍎", c:"FRESCHI"}, {n:"Banana", p:0.40, i:"🍌", c:"FRESCHI"}, {n:"Pera", p:0.60, i:"🍐", c:"FRESCHI"}, {n:"Arancia", p:0.50, i:"🍊", c:"FRESCHI"}, {n:"Uva", p:2.00, i:"🍇", c:"FRESCHI"},
+            {n:"Fragola", p:3.00, i:"🍓", c:"FRESCHI"}, {n:"Anguria", p:4.00, i:"🍉", c:"FRESCHI"}, {n:"Carota", p:0.30, i:"🥕", c:"FRESCHI"}, {n:"Pomodoro", p:0.40, i:"🍅", c:"FRESCHI"}, {n:"Insalata", p:1.00, i:"🥬", c:"FRESCHI"},
+            {n:"Pollo", p:6.00, i:"🍗", c:"FRESCHI"}, {n:"Carne", p:8.00, i:"🥩", c:"FRESCHI"}, {n:"Pesce", p:10.0, i:"🐟", c:"FRESCHI"}, {n:"Yogurt", p:0.90, i:"🍦", c:"FRESCHI"}, {n:"Pizza", p:5.00, i:"🍕", c:"FRESCHI"},
+            // DISPENSA
+            {n:"Pasta", p:0.80, i:"🍝", c:"DISPENSA"}, {n:"Riso", p:2.00, i:"🍚", c:"DISPENSA"}, {n:"Caffè", p:3.50, i:"☕", c:"DISPENSA"}, {n:"Biscotti", p:2.50, i:"🍪", c:"DISPENSA"}, {n:"Cioccolato", p:1.50, i:"🍫", c:"DISPENSA"},
+            {n:"Olio Oliva", p:8.00, i:"🫒", c:"DISPENSA"}, {n:"Sale", p:0.50, i:"🧂", c:"DISPENSA"}, {n:"Zucchero", p:1.20, i:"🍬", c:"DISPENSA"}, {n:"Miele", p:5.00, i:"🍯", c:"DISPENSA"}, {n:"Tonno", p:4.00, i:"🍣", c:"DISPENSA"},
+            {n:"Patatine", p:1.50, i:"🍟", c:"DISPENSA"}, {n:"Cereali", p:3.00, i:"🥣", c:"DISPENSA"}, {n:"Maionese", p:1.80, i:"🍶", c:"DISPENSA"}, {n:"Ketchup", p:1.50, i:"🥫", c:"DISPENSA"}, {n:"Confettura", p:2.50, i:"🏺", c:"DISPENSA"},
+            // BEVANDE
+            {n:"Acqua", p:0.40, i:"💧", c:"BEVANDE"}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE"}, {n:"Birra", p:1.50, i:"🍺", c:"BEVANDE"}, {n:"Vino", p:5.00, i:"🍷", c:"BEVANDE"}, {n:"Succo", p:1.50, i:"🧃", c:"BEVANDE"},
+            {n:"The Limone", p:1.50, i:"🍹", c:"BEVANDE"}, {n:"Aranciata", p:1.60, i:"🥤", c:"BEVANDE"}, {n:"Spumante", p:10.0, i:"🍾", c:"BEVANDE"}, {n:"Energy", p:2.50, i:"⚡", c:"BEVANDE"}, {n:"Soda", p:1.20, i:"🫧", c:"BEVANDE"},
+            // MAKEUP
+            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP"}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP"}, {n:"Mascara", p:12.0, i:"👁️", c:"MAKEUP"}, {n:"Cipria", p:15.0, i:"🌫️", c:"MAKEUP"}, {n:"Profumo", p:50.0, i:"💨", c:"MAKEUP"},
+            {n:"Palette", p:25.0, i:"🎨", c:"MAKEUP"}, {n:"Pennello", p:8.00, i:"🖌️", c:"MAKEUP"}, {n:"Crema", p:20.0, i:"🧴", c:"MAKEUP"}, {n:"Matita", p:6.00, i:"✏️", c:"MAKEUP"}, {n:"Eyeliner", p:9.00, i:"✒️", c:"MAKEUP"},
+            // VESTITI
+            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI"}, {n:"Jeans", p:40.0, i:"👖", c:"VESTITI"}, {n:"Gonna", p:30.0, i:"👗", c:"VESTITI"}, {n:"Vestito", p:60.0, i:"💃", c:"VESTITI"}, {n:"Felpa", p:35.0, i:"🧥", c:"VESTITI"},
+            {n:"Borsa", p:50.0, i:"👜", c:"VESTITI"}, {n:"Scarpe", p:70.0, i:"👟", c:"VESTITI"}, {n:"Cappello", p:20.0, i:"👒", c:"VESTITI"}, {n:"Calzini", p:5.00, i:"🧦", c:"VESTITI"}, {n:"Sciarpa", p:15.0, i:"🧣", c:"VESTITI"},
+            // CASA
+            {n:"Detersivo", p:5.00, i:"🧼", c:"CASA"}, {n:"Carta Ig.", p:3.00, i:"🧻", c:"CASA"}, {n:"Sapone", p:1.50, i:"🧽", c:"CASA"}, {n:"Shampoo", p:4.00, i:"🧴", c:"CASA"}, {n:"Dentifricio", p:2.50, i:"🪥", c:"CASA"}
         ];
+
 
         let cart = [], qta = 1, audioCtx = null;
 
