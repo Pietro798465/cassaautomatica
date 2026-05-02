@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cassa Pro Online</title>
+    <style>
+        :root { --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --bg: #cfd8dc; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
+
+        /* LATO PRODOTTI */
+        #inventory-side { flex: 7; display: flex; flex-direction: column; padding: 10px; border-right: 2px solid #999; height: 100vh; }
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; overflow-y: auto; flex-grow: 1; background: #eee; padding: 10px; border-radius: 10px; }
+        
+        .p-card { background: white; border: none; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 3px 6px rgba(0,0,0,0.1); border-bottom: 4px solid #90a4ae; min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .p-card:active { background: #e3f2fd; transform: scale(0.95); }
+        .p-card .emoji { font-size: 35px; display: block; }
+        .p-card .name { font-size: 10px; font-weight: bold; display: block; margin: 5px 0; height: 24px; overflow: hidden; line-height: 1; }
+        .p-card .price { font-size: 12px; color: var(--primary); font-weight: bold; }
+
+        /* QUANTITA E TABS */
+        .qty-bar { background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-qty { flex: 1; padding: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 8px; background: #546e7a; color: white; }
+        #qty-display { font-size: 25px; font-weight: bold; min-width: 40px; text-align: center; color: var(--primary); }
+        .nav-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+        .tab { padding: 15px; background: #b0bec5; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .tab.active { background: var(--primary); color: white; }
+
+        /* SCONTRINO */
+        #receipt-side { flex: 3.5; background: #455a64; padding: 15px; display: flex; flex-direction: column; height: 100vh; }
+        #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        .r-header { text-align: center; font-size: 11px; }
+        .divider { border-top: 1px dashed #000; margin: 8px 0; }
+        .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; }
+        .r-sub { font-size: 10px; margin-bottom: 5px; padding-left: 10px; color: #555; }
+        .r-total { font-size: 22px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; }
+
+        /* MODALI */
+        .pay-modal { display: none; position: fixed; z-index: 10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+        .pay-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
+        .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
+        .btn-pay { background: var(--secondary); }
+        .btn-card { background: var(--warning); }
+        .v-card { padding: 15px; border-radius: 10px; color: white; font-weight: bold; border: none; margin: 5px; font-size: 12px; }
+        #pos-screen { background: #111; color: #0f0; padding: 20px; border-radius: 10px; font-family: monospace; min-height: 80px; display: flex; align-items: center; justify-content: center; border: 2px solid #444; }
+    </style>
+</head>
+<body>
+
+    <!-- MODALE CONTANTI -->
+    <div id="modal-cash" class="pay-modal">
+        <div class="pay-content">
+            <h2 id="txt-tot-cash">Totale: 0.00 €</h2>
+            <input type="number" id="input-ricevuto" placeholder="Somma Ricevuta" style="width:100%; padding:15px; font-size:25px; text-align:center; border:2px solid #ccc; border-radius:10px;">
+            <h1 id="txt-resto" style="color:var(--secondary); margin:15px 0;">Resto: 0.00 €</h1>
+            <button class="btn btn-pay" onclick="concludi('CONTANTI')">STAMPA SCONTRINO</button>
+            <button class="btn" style="background:#777" onclick="document.getElementById('modal-cash').style.display='none'">ANNULLA</button>
+        </div>
+    </div>
+
+    <!-- MODALE SELEZIONE CARTA -->
+    <div id="modal-select-card" class="pay-modal">
+        <div class="pay-content">
+            <h3>Seleziona Carta</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr;">
+                <button class="v-card" style="background:#eb001b" onclick="avviaPos('MASTERCARD')">MASTERCARD</button>
+                <button class="v-card" style="background:#1a1f71" onclick="avviaPos('VISA')">VISA</button>
+                <button class="v-card" style="background:#ffcc00; color:black" onclick="avviaPos('POSTEPAY')">POSTEPAY</button>
+                <button class="v-card" style="background:#007bc1" onclick="avviaPos('AMEX')">AMEX</button>
+            </div>
+            <button class="btn" style="background:#777" onclick="document.getElementById('modal-select-card').style.display='none'">ANNULLA</button>
+        </div>
+    </div>
+
+    <!-- MODALE POS -->
+    <div id="modal-pos" class="pay-modal">
+        <div class="pay-content" style="background:#222; color:white;">
+            <div id="pos-screen">IN ATTESA CARTA...</div>
+        </div>
+    </div>
+
+    <!-- UI -->
+    <div id="inventory-side">
+        <div class="qty-bar">
+            <div id="qty-display">1</div>
+            <button class="btn-qty" onclick="setQ(1)">1</button>
+            <button class="btn-qty" onclick="setQ(2)">2</button>
+            <button class="btn-qty" onclick="setQ(5)">5</button>
+            <button class="btn-qty" onclick="setQ(10)">10</button>
+            <button class="btn-qty" style="background:var(--danger)" onclick="setQ(1)">C</button>
+        </div>
+        <div class="nav-tabs" id="tabs"></div>
+        <div id="grid"></div>
+    </div>
+
+    <div id="receipt-side">
+        <div id="paper">
+            <div class="r-header">
+                <div style="font-size:30px">🏪</div>
+                <strong>SUPERMERCATO ONLINE</strong><br>
+                VIA DELLE CLOUD, GITHUB<br>
+                <div id="out-date">--/--/-- --:--</div>
+                <div>OP: CASSIERE 1</div>
+            </div>
+            <div class="divider"></div>
+            <div id="st-items"></div>
+            <div class="divider"></div>
+            <div class="r-total">
+                <span>TOTALE</span>
+                <span id="st-total">0.00 €</span>
+            </div>
+        </div>
+        <button class="btn btn-pay" onclick="apriContanti()">PAGA CONTANTI</button>
+        <button class="btn btn-card" onclick="apriSceltaCarta()">PAGA CARTA</button>
+    </div>
+
+    <script>
+        const prodotti = [
+            {n:"Mela", p:0.50, i:"🍎", c:"FRESCHI"}, {n:"Banana", p:0.40, i:"🍌", c:"FRESCHI"}, {n:"Pera", p:0.60, i:"🍐", c:"FRESCHI"}, {n:"Uva", p:2.00, i:"🍇", c:"FRESCHI"}, {n:"Fragola", p:3.00, i:"🍓", c:"FRESCHI"}, {n:"Arancia", p:0.50, i:"🍊", c:"FRESCHI"}, {n:"Limone", p:0.30, i:"🍋", c:"FRESCHI"}, {n:"Anguria", p:5.00, i:"🍉", c:"FRESCHI"}, {n:"Ananas", p:3.50, i:"🍍", c:"FRESCHI"}, {n:"Ciliegie", p:4.00, i:"🍒", c:"FRESCHI"},
+            {n:"Pane", p:1.20, i:"🥖", c:"FRESCHI"}, {n:"Latte", p:1.40, i:"🥛", c:"FRESCHI"}, {n:"Uova x6", p:2.10, i:"🥚", c:"FRESCHI"}, {n:"Burro", p:2.50, i:"🧈", c:"FRESCHI"}, {n:"Formaggio", p:3.50, i:"🧀", c:"FRESCHI"}, {n:"Yogurt", p:0.80, i:"🍦", c:"FRESCHI"}, {n:"Mozzarella", p:1.50, i:"⚪", c:"FRESCHI"}, {n:"Pollo", p:6.00, i:"🍗", c:"FRESCHI"}, {n:"Bistecca", p:8.00, i:"🥩", c:"FRESCHI"}, {n:"Salame", p:3.00, i:"🌭", c:"FRESCHI"},
+            {n:"Pasta", p:0.85, i:"🍝", c:"DISPENSA"}, {n:"Riso", p:2.00, i:"🍚", c:"DISPENSA"}, {n:"Caffè", p:3.50, i:"☕", c:"DISPENSA"}, {n:"Biscotti", p:2.50, i:"🍪", c:"DISPENSA"}, {n:"Cioccolato", p:1.50, i:"🍫", c:"DISPENSA"}, {n:"Olio", p:8.00, i:"🫒", c:"DISPENSA"}, {n:"Farina", p:0.90, i:"🌾", c:"DISPENSA"}, {n:"Zucchero", p:1.20, i:"🍬", c:"DISPENSA"}, {n:"Sale", p:0.50, i:"🧂", c:"DISPENSA"}, {n:"Tonno", p:4.00, i:"🍣", c:"DISPENSA"}, {n:"Patatine", p:1.50, i:"🍟", c:"DISPENSA"}, {n:"Cereali", p:3.00, i:"🥣", c:"DISPENSA"}, {n:"Miele", p:5.00, i:"🍯", c:"DISPENSA"}, {n:"Maionese", p:1.80, i:"🍶", c:"DISPENSA"}, {n:"Ketchup", p:1.50, i:"🥫", c:"DISPENSA"},
+            {n:"Acqua", p:0.40, i:"💧", c:"BEVANDE"}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE"}, {n:"Birra", p:1.50, i:"🍺", c:"BEVANDE"}, {n:"Vino", p:5.00, i:"🍷", c:"BEVANDE"}, {n:"Succo", p:1.50, i:"🧃", c:"BEVANDE"}, {n:"Fanta", p:1.70, i:"🍊", c:"BEVANDE"}, {n:"Sprite", p:1.70, i:"🍋", c:"BEVANDE"}, {n:"Energy", p:2.50, i:"⚡", c:"BEVANDE"}, {n:"The Freddo", p:1.50, i:"🍹", c:"BEVANDE"}, {n:"Spumante", p:10.0, i:"🍾", c:"BEVANDE"},
+            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP"}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP"}, {n:"Mascara", p:12.0, i:"👁️", c:"MAKEUP"}, {n:"Palette", p:25.0, i:"🎨", c:"MAKEUP"}, {n:"Profumo", p:45.0, i:"💨", c:"MAKEUP"},
+            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI"}, {n:"Jeans", p:35.0, i:"👖", c:"VESTITI"}, {n:"Gonna", p:25.0, i:"👗", c:"VESTITI"}, {n:"Scarpe", p:50.0, i:"👟", c:"VESTITI"}, {n:"Giacca", p:70.0, i:"🧥", c:"VESTITI"},
+            {n:"Detersivo", p:5.00, i:"🧼", c:"CASA"}, {n:"Carta Ig.", p:3.00, i:"🧻", c:"CASA"}, {n:"Shampoo", p:4.00, i:"🧴", c:"CASA"}, {n:"Sapone", p:1.20, i:"🧽", c:"CASA"}, {n:"Dentifricio", p:2.20, i:"🪥", c:"CASA"}
+        ];
+
+        let cart = [], qta = 1, audioCtx = null;
+
+        window.onload = function() {
+            const cats = ['TUTTI', 'FRESCHI', 'DISPENSA', 'BEVANDE', 'MAKEUP', 'VESTITI', 'CASA'];
+            document.getElementById('tabs').innerHTML = cats.map(c => `<button class="tab" onclick="filtra('${c}', this)">${c}</button>`).join('');
+            document.getElementById('tabs').children[0].classList.add('active');
+            filtra('TUTTI');
+            setInterval(() => { document.getElementById('out-date').innerText = new Date().toLocaleString(); }, 1000);
+            document.getElementById('input-ricevuto').addEventListener('input', calcolaResto);
+        };
+
+        function filtra(cat, btn) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+            const lista = (cat === 'TUTTI') ? prodotti : prodotti.filter(p => p.c === cat);
+            lista.forEach(p => {
+                const b = document.createElement('button');
+                b.className = "p-card";
+                b.onclick = () => aggiungi(p);
+                b.innerHTML = `<span class="emoji">${p.i}</span><span class="name">${p.n}</span><span class="price">${p.p.toFixed(2)}€</span>`;
+                grid.appendChild(b);
+            });
+            if(btn) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        }
+
+        function setQ(n) { qta = n; document.getElementById('qty-display').innerText = n; }
+
+        function aggiungi(p) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let es = cart.find(i => i.n === p.n);
+            if(es) es.q += qta; else cart.push({ n: p.n, p: p.p, q: qta });
+            qta = 1; document.getElementById('qty-display').innerText = 1;
+            render(); beep(800, 0.08);
+        }
+
+        function render() {
+            const cont = document.getElementById('st-items');
+            cont.innerHTML = ""; let tot = 0;
+            cart.forEach(i => {
+                let sub = i.p * i.q; tot += sub;
+                cont.innerHTML += `<div class="r-row"><span>${i.n}</span><span>${sub.toFixed(2)}€</span></div><div class="r-sub">${i.q} x ${i.p.toFixed(2)}</div>`;
+            });
+            document.getElementById('st-total').innerText = tot.toFixed(2) + " €";
+        }
+
+        function apriContanti() { 
+            if(cart.length > 0) {
+                document.getElementById('txt-tot-cash').innerText = "Totale: " + document.getElementById('st-total').innerText;
+                document.getElementById('modal-cash').style.display = 'flex';
+            }
+        }
+
+        function calcolaResto() {
+            let tot = parseFloat(document.getElementById('st-total').innerText), rice = parseFloat(document.getElementById('input-ricevuto').value) || 0;
+            document.getElementById('txt-resto').innerText = "Resto: " + (rice-tot > 0 ? (rice-tot).toFixed(2) : "0.00") + " €";
+        }
+
+        function apriSceltaCarta() { if(cart.length > 0) document.getElementById('modal-select-card').style.display = 'flex'; }
+
+        function avviaPos(brand) {
+            document.getElementById('modal-select-card').style.display = 'none';
+            document.getElementById('modal-pos').style.display = 'flex';
+            const s = document.getElementById('pos-screen');
+            s.innerText = "CONTATTO " + brand + "...";
+            setTimeout(() => s.innerText = "AUTORIZZAZIONE...", 1500);
+            setTimeout(() => { s.innerText = "PAGAMENTO OK!"; beep(1000, 0.1); setTimeout(() => beep(1200, 0.1), 100); }, 3000);
+            setTimeout(() => { concludi(); document.getElementById('modal-pos').style.display = 'none'; }, 4500);
+        }
+
+        function concludi() { cart = []; render(); document.getElementById('modal-cash').style.display = 'none'; document.getElementById('input-ricevuto').value = ""; alert("VENDITA CONCLUSA!"); }
+
+        function beep(f, d) { if(audioCtx) { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.frequency.value = f; g.gain.value = 0.05; o.start(); o.stop(audioCtx.currentTime + d); } }
+    </script>
+</body>
+</html>
