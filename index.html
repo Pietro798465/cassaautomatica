@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cassa Supermercato Pro 100+</title>
+    <title>Cassa Supermercato Pro iPad</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --accent: #673ab7; --bg: #dee2e6; }
@@ -11,57 +11,87 @@
         body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: row !important; height: 100vh; overflow: hidden; }
 
         /* LATO SINISTRO */
-        #inventory-side { flex: 7.5; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: 100vh; overflow: hidden; }
-        #top-row { display: flex; gap: 10px; height: 180px; flex-shrink: 0; }
-        #scanner-container { flex: 1.5; background: #000; border-radius: 15px; position: relative; overflow: hidden; border: 3px solid #495057; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        #inventory-side { flex: 7.2; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: 100vh; overflow: hidden; }
+        #top-row { display: flex; gap: 10px; height: 190px; flex-shrink: 0; }
+        
+        /* SCANNER CON RIQUADRO BIANCO */
+        #scanner-container { flex: 1.5; background: #000; border-radius: 15px; position: relative; overflow: hidden; border: 3px solid #495057; }
         #reader { width: 100% !important; height: 100% !important; }
+        #reader__dashboard { display: none !important; } /* Nasconde controlli brutti della libreria */
+
         #qty-box { flex: 1; background: white; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .qty-btn { background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
         #qty-val { grid-column: span 2; background: #212529; color: #0f0; font-family: monospace; font-size: 24px; text-align: center; border-radius: 5px; padding: 5px; }
 
-        /* GRIGLIA E TAB */
-        .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
-        .tab { padding: 12px 15px; background: #adb5bd; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 11px; white-space: nowrap; }
+        /* GRIGLIA PRODOTTI */
+        .tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
+        .tab { padding: 12px 14px; background: #adb5bd; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 11px; white-space: nowrap; }
         .tab.active { background: var(--primary); color: white; }
         .tab-annunci { background: var(--accent) !important; color: white !important; }
 
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 5px; background: #e9ecef; border-radius: 10px; }
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 5px; background: #e9ecef; border-radius: 10px; }
         .p-card { background: white; border: none; border-radius: 12px; padding: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-bottom: 3px solid #999; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
         .p-card:active { background: #e3f2fd; transform: scale(0.95); }
-        .p-card .emoji { font-size: 28px; }
+        .p-card .emoji { font-size: 30px; }
         .p-card .name { font-size: 9px; font-weight: bold; margin: 3px 0; height: 22px; overflow: hidden; line-height: 1; }
-        .p-card .price { font-size: 10px; color: var(--primary); font-weight: bold; }
 
         /* LATO DESTRO: SCONTRINO */
-        #receipt-side { flex: 2.5; background: #495057; display: flex; flex-direction: column; padding: 12px; height: 100vh; border-left: 3px solid #343a40; }
+        #receipt-side { flex: 2.8; background: #495057; display: flex; flex-direction: column; padding: 12px; height: 100vh; border-left: 3px solid #343a40; }
         #paper { background: white; padding: 12px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 2px; }
         .r-header { text-align: center; font-size: 10px; }
-        .divider { border-top: 1px dashed #000; margin: 10px 0; }
+        .divider { border-top: 1px dashed #000; margin: 8px 0; }
         .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; }
         .r-total { font-size: 20px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 8px; margin-top: 10px; }
 
+        /* PULSANTI PAGAMENTO */
+        .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
+        .btn-cash { background: var(--secondary); }
+        .btn-card { background: var(--warning); }
+
         /* MODALI */
         .modal { display: none; position: fixed; z-index: 10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 20px; text-align: center; }
-        .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 22px; text-align: center; }
+        
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .v-card { padding: 20px; border-radius: 10px; color: white; font-weight: bold; border: none; }
+        #pos-screen { background: #111; color: #0f0; padding: 20px; border-radius: 10px; font-family: monospace; min-height: 100px; display: flex; align-items: center; justify-content: center; border: 2px solid #444; }
     </style>
 </head>
 <body>
 
-    <!-- MODALI -->
+    <!-- MODALE BILANCIA -->
     <div id="modal-weight" class="modal"><div class="modal-content">
         <h2 id="w-name">Peso</h2><input type="number" id="w-input" step="0.001" placeholder="0.000 kg">
-        <button class="btn" style="background:var(--secondary)" onclick="confirmW()">AGGIUNGI</button>
+        <button class="btn btn-cash" onclick="confirmW()">AGGIUNGI</button>
         <button class="btn" style="background:#777" onclick="closeM('modal-weight')">ANNULLA</button>
     </div></div>
 
-    <div id="modal-new" class="modal"><div class="modal-content">
-        <h3>📦 Nuovo Prodotto</h3><p id="new-b">--</p>
-        <input type="text" id="new-n" placeholder="Nome"><input type="number" id="new-p" placeholder="Prezzo (€)">
-        <label style="display:block; margin:10px 0;"><input type="checkbox" id="new-is-w"> Vendita a peso</label>
-        <button class="btn" style="background:var(--primary)" onclick="saveNew()">SALVA</button>
-        <button class="btn" style="background:#777" onclick="closeM('modal-new')">ANNULLA</button>
+    <!-- MODALE CONTANTI -->
+    <div id="modal-cash" class="modal"><div class="modal-content">
+        <h2 id="pay-tot-display">Totale: 0.00 €</h2>
+        <input type="number" id="cash-received" placeholder="Importo Ricevuto" oninput="calcResto()">
+        <h1 id="resto-display" style="color:var(--secondary)">Resto: 0.00 €</h1>
+        <p id="resto-tagli" style="font-size:12px; color:#666"></p>
+        <button class="btn btn-cash" onclick="concludi('CONTANTI')">STAMPA SCONTRINO</button>
+        <button class="btn" style="background:#777" onclick="closeM('modal-cash')">ANNULLA</button>
+    </div></div>
+
+    <!-- MODALE SCELTA CARTA -->
+    <div id="modal-select-card" class="modal"><div class="modal-content">
+        <h3>Scegli Circuito Carta</h3>
+        <div class="card-grid">
+            <button class="v-card" style="background:#eb001b" onclick="avviaPos('MASTERCARD')">MASTERCARD</button>
+            <button class="v-card" style="background:#1a1f71" onclick="avviaPos('VISA')">VISA</button>
+            <button class="v-card" style="background:#ffcc00; color:black" onclick="avviaPos('POSTEPAY')">POSTEPAY</button>
+            <button class="v-card" style="background:#007bc1" onclick="avviaPos('AMEX')">AMEX</button>
+        </div>
+        <button class="btn" style="background:#777" onclick="closeM('modal-select-card')">ANNULLA</button>
+    </div></div>
+
+    <!-- MODALE POS -->
+    <div id="modal-pos" class="modal"><div class="modal-content" style="background:#222; color:white;">
+        <div id="pos-screen">ATTESA CARTA...</div>
     </div></div>
 
     <!-- UI PRINCIPALE -->
@@ -69,7 +99,7 @@
         <div id="top-row">
             <div id="scanner-container">
                 <div id="reader"></div>
-                <button id="btn-cam" onclick="startScanner()" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); padding:15px; background:var(--secondary); color:white; border:none; border-radius:10px; font-weight:bold; z-index:100;">📷 AVVIA CASSA</button>
+                <button id="btn-cam" onclick="initScanner()" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); padding:15px; background:var(--secondary); color:white; border:none; border-radius:10px; font-weight:bold; z-index:100;">📷 ATTIVA SCANNER</button>
                 <button onclick="switchCamera()" style="position:absolute; top:10px; right:10px; z-index:100; background:white; border:none; border-radius:50%; width:40px; height:40px; font-size:18px;">🔄</button>
             </div>
             <div id="qty-box">
@@ -79,7 +109,6 @@
                 <button class="qty-btn" style="grid-column:span 2; background:var(--danger)" onclick="setQ(1)">C (RESET)</button>
             </div>
         </div>
-
         <div class="tabs" id="tabs"></div>
         <div id="grid"></div>
     </div>
@@ -88,7 +117,8 @@
         <div id="paper">
             <div class="r-header">
                 <strong style="font-size:14px;">SUPERMERCATO GDO PRO</strong><br>
-                SISTEMA 100+ PRODOTTI<br>
+                VIA ROMA 123, ITALIA<br>
+                P.IVA: IT01234567890<br>
                 <span id="st-date">--/--/-- --:--</span>
             </div>
             <div class="divider"></div>
@@ -96,45 +126,36 @@
             <div class="divider"></div>
             <div class="r-total"><span>TOTALE</span><span id="st-total">0.00 €</span></div>
         </div>
-        <button class="btn" style="background:var(--secondary)" onclick="alert('Pagamento...')">PAGA CONTANTI</button>
-        <button class="btn" style="background:var(--warning)" onclick="alert('Pagamento...')">PAGA CARTA</button>
+        <button class="btn btn-cash" onclick="openCash()">PAGA CONTANTI</button>
+        <button class="btn btn-card" onclick="openCardSelect()">PAGA CARTA</button>
         <button class="btn" style="background:#222; font-size:10px;" onclick="resetDB()">RESET ARCHIVIO</button>
     </div>
 
     <script>
         const baseProd = [
-            // FRESCHI (20)
-            {n:"Mela Fuji", p:1.20, i:"🍎", c:"FRESCHI", b:"101", w:true}, {n:"Banana", p:0.90, i:"🍌", c:"FRESCHI", b:"102", w:true}, {n:"Arancia", p:1.10, i:"🍊", c:"FRESCHI", b:"103", w:true}, {n:"Pera", p:1.30, i:"🍐", c:"FRESCHI", b:"104", w:true}, {n:"Limone", p:0.50, i:"🍋", c:"FRESCHI", b:"105", w:true}, {n:"Fragole", p:3.50, i:"🍓", c:"FRESCHI", b:"106", w:true}, {n:"Uva", p:2.80, i:"🍇", c:"FRESCHI", b:"107", w:true}, {n:"Insalata", p:1.50, i:"🥬", c:"FRESCHI", b:"108", w:true}, {n:"Pomodoro", p:1.80, i:"🍅", c:"FRESCHI", b:"109", w:true}, {n:"Carota", p:0.80, i:"🥕", c:"FRESCHI", b:"110", w:true},
-            {n:"Patata kg", p:1.00, i:"🥔", c:"FRESCHI", b:"111", w:true}, {n:"Uova x6", p:2.10, i:"🥚", c:"FRESCHI", b:"112", w:false}, {n:"Latte 1L", p:1.40, i:"🥛", c:"FRESCHI", b:"113", w:false}, {n:"Burro", p:2.50, i:"🧈", c:"FRESCHI", b:"114", w:false}, {n:"Formaggio", p:4.50, i:"🧀", c:"FRESCHI", b:"115", w:true}, {n:"Pollo", p:6.50, i:"🍗", c:"FRESCHI", b:"116", w:true}, {n:"Bistecca", p:15.0, i:"🥩", c:"FRESCHI", b:"117", w:true}, {n:"Pesce", p:18.0, i:"🐟", c:"FRESCHI", b:"118", w:true}, {n:"Pane", p:3.50, i:"🥖", c:"FRESCHI", b:"119", w:true}, {n:"Yogurt", p:0.90, i:"🍦", c:"FRESCHI", b:"120", w:false},
-            // DISPENSA (20)
-            {n:"Pasta 500g", p:0.85, i:"🍝", c:"DISPENSA", b:"8076809513753", w:false}, {n:"Riso 1kg", p:2.10, i:"🍚", c:"DISPENSA", b:"201", w:false}, {n:"Caffè 250g", p:3.50, i:"☕", c:"DISPENSA", b:"202", w:false}, {n:"Biscotti", p:2.80, i:"🍪", c:"DISPENSA", b:"203", w:false}, {n:"Cioccolato", p:1.20, i:"🍫", c:"DISPENSA", b:"204", w:false}, {n:"Olio Oliva", p:8.50, i:"🫒", c:"DISPENSA", b:"205", w:false}, {n:"Farina 1kg", p:0.90, i:"🌾", c:"DISPENSA", b:"206", w:false}, {n:"Zucchero", p:1.20, i:"🍬", c:"DISPENSA", b:"207", w:false}, {n:"Sale kg", p:0.60, i:"🧂", c:"DISPENSA", b:"208", w:false}, {n:"Tonno x3", p:4.50, i:"🍣", c:"DISPENSA", b:"209", w:false},
-            {n:"Patatine", p:1.50, i:"🍟", c:"DISPENSA", b:"210", w:false}, {n:"Pesto 180g", p:1.90, i:"🌿", c:"DISPENSA", b:"211", w:false}, {n:"Maionese", p:1.80, i:"🍶", c:"DISPENSA", b:"212", w:false}, {n:"Miele", p:5.00, i:"🍯", c:"DISPENSA", b:"213", w:false}, {n:"Cereali", p:3.20, i:"🥣", c:"DISPENSA", b:"214", w:false}, {n:"Crackers", p:1.40, i:"🥨", c:"DISPENSA", b:"215", w:false}, {n:"Fagioli", p:0.90, i:"🌱", c:"DISPENSA", b:"216", w:false}, {n:"Marmellata", p:2.50, i:"🏺", c:"DISPENSA", b:"217", w:false}, {n:"Dado", p:1.50, i:"🧊", c:"DISPENSA", b:"218", w:false}, {n:"Pane Bauli", p:1.60, i:"🍞", c:"DISPENSA", b:"219", w:false},
-            // BEVANDE (15)
-            {n:"Acqua 1.5L", p:0.40, i:"💧", c:"BEVANDE", b:"8001120002133", w:false}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE", b:"5449000000996", w:false}, {n:"Fanta 1.5L", p:1.70, i:"🍊", c:"BEVANDE", b:"301", w:false}, {n:"Sprite", p:1.70, i:"🍋", c:"BEVANDE", b:"302", w:false}, {n:"Birra 66cl", p:1.40, i:"🍺", c:"BEVANDE", b:"303", w:false}, {n:"Vino Rosso", p:5.50, i:"🍷", c:"BEVANDE", b:"304", w:false}, {n:"Succo Pera", p:1.60, i:"🧃", c:"BEVANDE", b:"305", w:false}, {n:"The Freddo", p:1.50, i:"🍹", c:"BEVANDE", b:"306", w:false}, {n:"Energy Dr.", p:2.50, i:"⚡", c:"BEVANDE", b:"307", w:false}, {n:"Spumante", p:10.0, i:"🍾", c:"BEVANDE", b:"308", w:false},
-            {n:"Acqua Gas", p:0.40, i:"🫧", c:"BEVANDE", b:"309", w:false}, {n:"Chinotto", p:1.40, i:"🥃", c:"BEVANDE", b:"310", w:false}, {n:"Aranciata", p:1.50, i:"🥤", c:"BEVANDE", b:"311", w:false}, {n:"Latte Cacao", p:1.20, i:"🍫", c:"BEVANDE", b:"312", w:false}, {n:"Ginger Ale", p:1.80, i:"🍸", c:"BEVANDE", b:"313", w:false},
-            // MAKEUP (15)
-            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP", b:"401", w:false}, {n:"Mascara", p:12.0, i:"👁️", c:"MAKEUP", b:"402", w:false}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP", b:"403", w:false}, {n:"Fondotinta", p:20.0, i:"🎨", c:"MAKEUP", b:"404", w:false}, {n:"Profumo", p:45.0, i:"💨", c:"MAKEUP", b:"405", w:false}, {n:"Palette", p:25.0, i:"🖌️", c:"MAKEUP", b:"406", w:false}, {n:"Cipria", p:15.0, i:"🌫️", c:"MAKEUP", b:"407", w:false}, {n:"Blush", p:12.0, i:"🌸", c:"MAKEUP", b:"408", w:false}, {n:"Eyeliner", p:9.00, i:"✒️", c:"MAKEUP", b:"409", w:false}, {n:"Matita Occhi", p:6.00, i:"✏️", c:"MAKEUP", b:"410", w:false},
-            {n:"Crema Viso", p:18.0, i:"🧴", c:"MAKEUP", b:"411", w:false}, {n:"Struccante", p:6.00, i:"🧼", c:"MAKEUP", b:"412", w:false}, {n:"Lucidalabbra", p:8.00, i:"👄", c:"MAKEUP", b:"413", w:false}, {n:"Pennello", p:7.00, i:"🖌️", c:"MAKEUP", b:"414", w:false}, {n:"Correttore", p:11.0, i:"🎨", c:"MAKEUP", b:"415", w:false},
-            // VESTITI (17)
-            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI", b:"501", w:false}, {n:"Jeans Slim", p:35.0, i:"👖", c:"VESTITI", b:"502", w:false}, {n:"Gonna", p:25.0, i:"👗", c:"VESTITI", b:"503", w:false}, {n:"Vestito", p:55.0, i:"💃", c:"VESTITI", b:"504", w:false}, {n:"Felpa", p:30.0, i:"🧥", c:"VESTITI", b:"505", w:false}, {n:"Giacca", p:75.0, i:"🧥", c:"VESTITI", b:"506", w:false}, {n:"Cappello", p:15.0, i:"👒", c:"VESTITI", b:"507", w:false}, {n:"Borsa", p:40.0, i:"👜", c:"VESTITI", b:"508", w:false}, {n:"Scarpe", p:60.0, i:"👟", c:"VESTITI", b:"509", w:false}, {n:"Calzini", p:5.00, i:"🧦", c:"VESTITI", b:"510", w:false},
-            {n:"Sciarpa", p:12.0, i:"🧣", c:"VESTITI", b:"511", w:false}, {n:"Pigiama", p:25.0, i:"🛌", c:"VESTITI", b:"512", w:false}, {n:"Cintura", p:18.0, i:"🔗", c:"VESTITI", b:"513", w:false}, {n:"Occhiali", p:20.0, i:"🕶️", c:"VESTITI", b:"514", w:false}, {n:"Costume", p:22.0, i:"👙", c:"VESTITI", b:"515", w:false}, {n:"Guanti", p:10.0, i:"🧤", c:"VESTITI", b:"516", w:false}, {n:"Cravatta", p:15.0, i:"👔", c:"VESTITI", b:"517", w:false},
-            // CASA (15)
-            {n:"Detersivo", p:5.50, i:"🧼", c:"CASA", b:"601", w:false}, {n:"Ammorbidente", p:3.20, i:"🌸", c:"CASA", b:"602", w:false}, {n:"Carta Ig.", p:3.50, i:"🧻", c:"CASA", b:"603", w:false}, {n:"Tovaglioli", p:1.50, i:"🗞️", c:"CASA", b:"604", w:false}, {n:"Sapone Mani", p:1.20, i:"🧼", c:"CASA", b:"605", w:false}, {n:"Shampoo", p:4.00, i:"🧴", c:"CASA", b:"606", w:false}, {n:"Dentifricio", p:2.50, i:"🪥", c:"CASA", b:"607", w:false}, {n:"Spugna", p:0.90, i:"🧽", c:"CASA", b:"608", w:false}, {n:"Sacchi Sp.", p:2.20, i:"🗑️", c:"CASA", b:"609", w:false}, {n:"Candeggina", p:1.80, i:"🧪", c:"CASA", b:"610", w:false},
-            {n:"Bagnoschiuma", p:2.80, i:"🚿", c:"CASA", b:"611", w:false}, {n:"Deodorante", p:3.50, i:"💨", c:"CASA", b:"612", w:false}, {n:"Spazzolino", p:2.00, i:"🪥", c:"CASA", b:"613", w:false}, {n:"Detersivo P.", p:1.40, i:"🧽", c:"CASA", b:"614", w:false}, {n:"Mocio", p:5.00, i:"🧹", c:"CASA", b:"615", w:false}
+            // FRESCHI (w:true = peso)
+            {n:"Mela Fuji", p:1.20, i:"🍎", c:"FRESCHI", b:"101", w:true}, {n:"Banana", p:0.90, i:"🍌", c:"FRESCHI", b:"102", w:true}, {n:"Pane", p:3.50, i:"🥖", c:"FRESCHI", b:"006", w:true}, {n:"Latte 1L", p:1.40, i:"🥛", c:"FRESCHI", b:"113", w:false}, {n:"Uova x6", p:2.10, i:"🥚", c:"FRESCHI", b:"112", w:false}, {n:"Bistecca", p:15.0, i:"🥩", c:"FRESCHI", b:"117", w:true},
+            // DISPENSA
+            {n:"Pasta 500g", p:0.85, i:"🍝", c:"DISPENSA", b:"8076809513753", w:false}, {n:"Caffè 250g", p:3.50, i:"☕", c:"DISPENSA", b:"202", w:false}, {n:"Biscotti", p:2.80, i:"🍪", c:"DISPENSA", b:"203", w:false}, {n:"Cioccolato", p:1.20, i:"🍫", c:"DISPENSA", b:"204", w:false}, {n:"Olio Oliva", p:8.50, i:"🫒", c:"DISPENSA", b:"205", w:false},
+            // BEVANDE
+            {n:"Acqua 1.5L", p:0.40, i:"💧", c:"BEVANDE", b:"8001120002133", w:false}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE", b:"5449000000996", w:false}, {n:"Vino Rosso", p:5.50, i:"🍷", c:"BEVANDE", b:"304", w:false},
+            // MAKEUP
+            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP", b:"401", w:false}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP", b:"403", w:false},
+            // VESTITI
+            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI", b:"501", w:false}, {n:"Jeans", p:35.0, i:"👖", c:"VESTITI", b:"502", w:false},
+            // CASA
+            {n:"Detersivo", p:5.50, i:"🧼", c:"CASA", b:"601", w:false}, {n:"Carta Ig.", p:3.50, i:"🧻", c:"CASA", b:"603", w:false}
         ];
 
         const annunci = [
-            {n:"CHIUSURA", m:"Attenzione, il negozio chiuderà tra 15 minuti. Si prega di recarsi alle casse."},
+            {n:"CHIUSURA", m:"Il negozio chiuderà tra 15 minuti. Si prega di recarsi alle casse."},
             {n:"CASSA 5", m:"Si prega di aprire la cassa numero cinque."},
-            {n:"RESPONSABILE", m:"Il responsabile è richiesto nel reparto casse."},
-            {n:"PULIZIE", m:"Un addetto alle pulizie è richiesto in corsia quattro."},
-            {n:"OFFERTE", m:"Gentili clienti, scoprite le nuove offerte nel reparto ortofrutta!"},
             {n:"BAMBINO", m:"Un bambino di nome Marco aspetta i genitori al banco informazioni."}
         ];
 
-        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_db_v5')) || baseProd;
+        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_v6')) || baseProd;
         let carrello = [], qta = 1, scanner = null, audioCtx = null, mode = "environment";
-        let pendingB = "", pendingI = null;
+        let pendingI = null, venditeTotal = 0;
 
         window.onload = () => {
             generaTab(); filtra('TUTTI');
@@ -143,16 +164,15 @@
 
         function generaTab() {
             const cats = ['TUTTI', 'FRESCHI', 'DISPENSA', 'BEVANDE', 'MAKEUP', 'VESTITI', 'CASA', 'ANNUNCI'];
-            const cont = document.getElementById('tabs');
-            cont.innerHTML = cats.map(c => `<button class="tab ${c=='ANNUNCI'?'tab-annunci':''}" onclick="filtra('${c}', this)">${c}</button>`).join('');
-            cont.children[0].classList.add('active');
+            document.getElementById('tabs').innerHTML = cats.map(c => `<button class="tab ${c=='ANNUNCI'?'tab-annunci':''}" onclick="filtra('${c}', this)">${c}</button>`).join('');
+            document.getElementById('tabs').children[0].classList.add('active');
         }
 
         function filtra(cat, btn) {
             const grid = document.getElementById('grid'); grid.innerHTML = "";
             if (cat === 'ANNUNCI') {
                 annunci.forEach(a => {
-                    const b = document.createElement('button'); b.className = "p-card annuncio-card";
+                    const b = document.createElement('button'); b.className = "p-card";
                     b.onclick = () => faiAnnuncio(a.m);
                     b.innerHTML = `<span class="emoji">📢</span><span class="name">${a.n}</span>`;
                     grid.appendChild(b);
@@ -162,54 +182,42 @@
                 lista.forEach(p => {
                     const b = document.createElement('button'); b.className = "p-card";
                     b.onclick = () => aggiungi(p.b);
-                    b.innerHTML = `<span class="emoji">${p.i || '📦'}</span><span class="name">${p.n}</span><span class="price">${p.p.toFixed(2)}€</span>`;
+                    b.innerHTML = `<span class="emoji">${p.i}</span><span class="name">${p.n}</span><span class="price">${p.p.toFixed(2)}€</span>`;
                     grid.appendChild(b);
                 });
             }
             if(btn) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
         }
 
-        function faiAnnuncio(messaggio) {
-            beep(600, 0.2); setTimeout(() => beep(450, 0.4), 200);
-            setTimeout(() => {
-                const msg = new SpeechSynthesisUtterance();
-                msg.text = messaggio; msg.lang = 'it-IT'; msg.rate = 0.9;
-                window.speechSynthesis.speak(msg);
-            }, 800);
-        }
-
-        async function startScanner() {
+        // SCANNER CON RIQUADRO BIANCO (MIRINO)
+        async function initScanner() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('btn-cam').style.display = 'none';
             if (scanner) await scanner.stop();
             scanner = new Html5Qrcode("reader");
+            // Configurazione con qrbox (il quadrato bianco)
             scanner.start({ facingMode: mode }, { fps: 20, qrbox: { width: 250, height: 150 } }, (b) => { aggiungi(b); });
         }
 
-        function switchCamera() { mode = (mode === "environment") ? "user" : "environment"; startScanner(); }
+        function switchCamera() { mode = (mode === "environment") ? "user" : "environment"; initScanner(); }
         function setQ(n) { qta = n; document.getElementById('qty-val').innerText = n; }
 
         function aggiungi(barcode) {
             const p = prodotti.find(i => i.b === barcode);
             if (p) {
                 if (p.w) { pendingI = p; document.getElementById('w-name').innerText = p.n; document.getElementById('modal-weight').style.display = 'flex'; }
-                else { let es = carrello.find(i => i.b === barcode); if(es) es.q += qta; else carrello.push({...p, q: qta}); beep(900, 0.1); render(); }
-            } else { pendingB = barcode; document.getElementById('new-b').innerText = "COD: " + barcode; document.getElementById('modal-new').style.display = 'flex'; }
+                else { 
+                    let es = carrello.find(i => i.b === barcode); 
+                    if(es) es.q += qta; else carrello.push({...p, q: qta}); 
+                    beep(900, 0.1, 1.0); render(); 
+                }
+            }
             setQ(1);
         }
 
         function confirmW() {
             const w = parseFloat(document.getElementById('w-input').value);
-            if(w > 0) { carrello.push({...pendingI, q: w}); beep(900, 0.1); render(); closeM('modal-weight'); document.getElementById('w-input').value=""; }
-        }
-
-        function saveNew() {
-            const n = document.getElementById('new-n').value, p = parseFloat(document.getElementById('new-p').value), w = document.getElementById('new-is-w').checked;
-            if(n && p > 0) {
-                prodotti.push({n, p, b: pendingB, w, i:"📦", c:"TUTTI"});
-                localStorage.setItem('cassa_pro_db_v5', JSON.stringify(prodotti));
-                filtra('TUTTI'); closeM('modal-new'); aggiungi(pendingB);
-            }
+            if(w > 0) { carrello.push({...pendingI, q: w}); beep(900, 0.1, 1.0); render(); closeM('modal-weight'); document.getElementById('w-input').value=""; }
         }
 
         function render() {
@@ -221,14 +229,64 @@
             document.getElementById('st-total').innerText = tot.toFixed(2) + " €";
         }
 
+        // PAGAMENTO CONTANTI
+        function openCash() {
+            const tot = parseFloat(document.getElementById('st-total').innerText);
+            if(tot <= 0) return;
+            document.getElementById('pay-tot-display').innerText = "Totale: " + tot.toFixed(2) + " €";
+            document.getElementById('modal-cash').style.display = 'flex';
+        }
+
+        function calcResto() {
+            const tot = parseFloat(document.getElementById('st-total').innerText);
+            const rice = parseFloat(document.getElementById('cash-received').value) || 0;
+            const diff = rice - tot;
+            document.getElementById('resto-display').innerText = "Resto: " + (diff > 0 ? diff.toFixed(2) : "0.00") + " €";
+        }
+
+        // PAGAMENTO CARTA
+        function openCardSelect() {
+            if(parseFloat(document.getElementById('st-total').innerText) <= 0) return;
+            document.getElementById('modal-select-card').style.display = 'flex';
+        }
+
+        function avviaPos(brand) {
+            closeM('modal-select-card');
+            document.getElementById('modal-pos').style.display = 'flex';
+            const s = document.getElementById('pos-screen');
+            s.innerText = "CONTATTO " + brand + "...";
+            setTimeout(() => s.innerText = "AUTORIZZAZIONE...", 2000);
+            setTimeout(() => { 
+                s.innerText = "PAGAMENTO OK!"; 
+                beep(1000, 0.1, 1.0); setTimeout(() => beep(1200, 0.1, 1.0), 150); 
+            }, 4000);
+            setTimeout(() => { concludi('CARTA'); closeM('modal-pos'); }, 6000);
+        }
+
+        function concludi(tipo) {
+            carrello = []; render(); 
+            closeM('modal-cash'); 
+            document.getElementById('cash-received').value = "";
+            alert("VENDITA CONCLUSA!");
+        }
+
+        function faiAnnuncio(m) {
+            beep(600, 0.2, 0.5); setTimeout(() => beep(450, 0.4, 0.5), 200);
+            setTimeout(() => {
+                const msg = new SpeechSynthesisUtterance(m);
+                msg.lang = 'it-IT'; msg.rate = 0.9;
+                window.speechSynthesis.speak(msg);
+            }, 800);
+        }
+
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
-        function resetDB() { if(confirm("Resettare l'archivio?")) { localStorage.removeItem('cassa_pro_db_v5'); location.reload(); } }
+        function resetDB() { if(confirm("Resettare?")) { localStorage.removeItem('cassa_pro_v6'); location.reload(); } }
         
-        function beep(f, d) {
+        function beep(f, d, v) {
             if(!audioCtx) return;
             const o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.connect(g); g.connect(audioCtx.destination);
-            o.frequency.value = f; g.gain.value = 1.0;
+            o.frequency.value = f; g.gain.value = v;
             o.start(); o.stop(audioCtx.currentTime + d);
         }
     </script>
