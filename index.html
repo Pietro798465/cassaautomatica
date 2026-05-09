@@ -8,42 +8,66 @@
     <style>
         :root { --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --accent: #673ab7; --bg: #dee2e6; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: row !important; height: 100vh; overflow: hidden; }
-
-        /* LATO SINISTRO */
-        #inventory-side { flex: 7.2; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: 100vh; overflow: hidden; }
-        #top-row { display: flex; gap: 10px; height: 190px; flex-shrink: 0; }
         
-        /* SCANNER CON RIQUADRO BIANCO */
-        #scanner-container { flex: 1.5; background: #000; border-radius: 15px; position: relative; overflow: hidden; border: 3px solid #495057; }
-        #reader { width: 100% !important; height: 100% !important; }
-        #reader__dashboard { display: none !important; } /* Nasconde controlli brutti della libreria */
+        body { 
+            font-family: -apple-system, sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            display: flex; 
+            flex-direction: row !important; /* Scontrino sempre a destra */
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        #qty-box { flex: 1; background: white; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* LATO SINISTRO: SCANNER + PRODOTTI */
+        #inventory-side { flex: 7; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: 100vh; overflow: hidden; }
+
+        #top-row { display: flex; gap: 10px; height: 200px; flex-shrink: 0; }
+        
+        /* AREA SCANNER CON MIRINO BIANCO */
+        #scanner-container { 
+            flex: 1.5; background: #000; border-radius: 15px; position: relative; 
+            overflow: hidden; border: 3px solid #495057; 
+        }
+        #reader { width: 100% !important; height: 100% !important; }
+
+        #qty-box { 
+            flex: 1; background: white; border-radius: 15px; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
         .qty-btn { background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
         #qty-val { grid-column: span 2; background: #212529; color: #0f0; font-family: monospace; font-size: 24px; text-align: center; border-radius: 5px; padding: 5px; }
 
         /* GRIGLIA PRODOTTI */
-        .tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
-        .tab { padding: 12px 14px; background: #adb5bd; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 11px; white-space: nowrap; }
+        .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
+        .tab { padding: 12px 15px; background: #adb5bd; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 11px; white-space: nowrap; }
         .tab.active { background: var(--primary); color: white; }
         .tab-annunci { background: var(--accent) !important; color: white !important; }
 
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 5px; background: #e9ecef; border-radius: 10px; }
-        .p-card { background: white; border: none; border-radius: 12px; padding: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-bottom: 3px solid #999; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
+        #grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); 
+            gap: 8px; overflow-y: auto; flex-grow: 1; padding: 5px; background: #e9ecef; border-radius: 10px;
+        }
+        .p-card { 
+            background: white; border: none; border-radius: 12px; padding: 8px; 
+            text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            border-bottom: 3px solid #999; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;
+        }
         .p-card:active { background: #e3f2fd; transform: scale(0.95); }
-        .p-card .emoji { font-size: 30px; }
+        .p-card .emoji { font-size: 28px; }
         .p-card .name { font-size: 9px; font-weight: bold; margin: 3px 0; height: 22px; overflow: hidden; line-height: 1; }
+        .p-card .price { font-size: 10px; color: var(--primary); font-weight: bold; }
 
-        /* LATO DESTRO: SCONTRINO */
-        #receipt-side { flex: 2.8; background: #495057; display: flex; flex-direction: column; padding: 12px; height: 100vh; border-left: 3px solid #343a40; }
-        #paper { background: white; padding: 12px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 2px; }
+        /* LATO DESTRO: SCONTRINO (STILE TERMICO) */
+        #receipt-side { flex: 3; background: #495057; display: flex; flex-direction: column; padding: 12px; height: 100vh; border-left: 3px solid #343a40; }
+        #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 2px; }
         .r-header { text-align: center; font-size: 10px; }
         .divider { border-top: 1px dashed #000; margin: 8px 0; }
         .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; }
         .r-total { font-size: 20px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 8px; margin-top: 10px; }
 
-        /* PULSANTI PAGAMENTO */
+        /* BOTTONI AZIONE */
         .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
         .btn-cash { background: var(--secondary); }
         .btn-card { background: var(--warning); }
@@ -54,7 +78,7 @@
         input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 22px; text-align: center; }
         
         .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .v-card { padding: 20px; border-radius: 10px; color: white; font-weight: bold; border: none; }
+        .v-card { padding: 20px; border-radius: 10px; color: white; font-weight: bold; border: none; font-size: 14px; }
         #pos-screen { background: #111; color: #0f0; padding: 20px; border-radius: 10px; font-family: monospace; min-height: 100px; display: flex; align-items: center; justify-content: center; border: 2px solid #444; }
     </style>
 </head>
@@ -70,10 +94,9 @@
     <!-- MODALE CONTANTI -->
     <div id="modal-cash" class="modal"><div class="modal-content">
         <h2 id="pay-tot-display">Totale: 0.00 €</h2>
-        <input type="number" id="cash-received" placeholder="Importo Ricevuto" oninput="calcResto()">
-        <h1 id="resto-display" style="color:var(--secondary)">Resto: 0.00 €</h1>
-        <p id="resto-tagli" style="font-size:12px; color:#666"></p>
-        <button class="btn btn-cash" onclick="concludi('CONTANTI')">STAMPA SCONTRINO</button>
+        <input type="number" id="cash-received" placeholder="Somma Ricevuta" oninput="calcResto()">
+        <h1 id="resto-display" style="color:var(--secondary); font-size: 40px; margin: 15px 0;">Resto: 0.00 €</h1>
+        <button class="btn btn-cash" onclick="concludi('CONTANTI')">CHIUDI E STAMPA</button>
         <button class="btn" style="background:#777" onclick="closeM('modal-cash')">ANNULLA</button>
     </div></div>
 
@@ -94,7 +117,6 @@
         <div id="pos-screen">ATTESA CARTA...</div>
     </div></div>
 
-    <!-- UI PRINCIPALE -->
     <div id="inventory-side">
         <div id="top-row">
             <div id="scanner-container">
@@ -117,8 +139,7 @@
         <div id="paper">
             <div class="r-header">
                 <strong style="font-size:14px;">SUPERMERCATO GDO PRO</strong><br>
-                VIA ROMA 123, ITALIA<br>
-                P.IVA: IT01234567890<br>
+                VIA DEL COMMERCIO 123, ROMA<br>
                 <span id="st-date">--/--/-- --:--</span>
             </div>
             <div class="divider"></div>
@@ -135,27 +156,28 @@
         const baseProd = [
             // FRESCHI (w:true = peso)
             {n:"Mela Fuji", p:1.20, i:"🍎", c:"FRESCHI", b:"101", w:true}, {n:"Banana", p:0.90, i:"🍌", c:"FRESCHI", b:"102", w:true}, {n:"Pane", p:3.50, i:"🥖", c:"FRESCHI", b:"006", w:true}, {n:"Latte 1L", p:1.40, i:"🥛", c:"FRESCHI", b:"113", w:false}, {n:"Uova x6", p:2.10, i:"🥚", c:"FRESCHI", b:"112", w:false}, {n:"Bistecca", p:15.0, i:"🥩", c:"FRESCHI", b:"117", w:true},
+            {n:"Arancia", p:1.10, i:"🍊", c:"FRESCHI", b:"103", w:true}, {n:"Insalata", p:1.50, i:"🥬", c:"FRESCHI", b:"108", w:true}, {n:"Pollo", p:6.50, i:"🍗", c:"FRESCHI", b:"116", w:true}, {n:"Yogurt", p:0.90, i:"🍦", c:"FRESCHI", b:"120", w:false},
             // DISPENSA
-            {n:"Pasta 500g", p:0.85, i:"🍝", c:"DISPENSA", b:"8076809513753", w:false}, {n:"Caffè 250g", p:3.50, i:"☕", c:"DISPENSA", b:"202", w:false}, {n:"Biscotti", p:2.80, i:"🍪", c:"DISPENSA", b:"203", w:false}, {n:"Cioccolato", p:1.20, i:"🍫", c:"DISPENSA", b:"204", w:false}, {n:"Olio Oliva", p:8.50, i:"🫒", c:"DISPENSA", b:"205", w:false},
+            {n:"Pasta 500g", p:0.85, i:"🍝", c:"DISPENSA", b:"8076809513753", w:false}, {n:"Caffè 250g", p:3.50, i:"☕", c:"DISPENSA", b:"202", w:false}, {n:"Biscotti", p:2.80, i:"🍪", c:"DISPENSA", b:"203", w:false}, {n:"Cioccolato", p:1.20, i:"🍫", c:"DISPENSA", b:"204", w:false}, {n:"Olio Oliva", p:8.50, i:"🫒", c:"DISPENSA", b:"205", w:false}, {n:"Sale kg", p:0.60, i:"🧂", c:"DISPENSA", b:"208", w:false}, {n:"Tonno x3", p:4.50, i:"🍣", c:"DISPENSA", b:"209", w:false},
             // BEVANDE
-            {n:"Acqua 1.5L", p:0.40, i:"💧", c:"BEVANDE", b:"8001120002133", w:false}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE", b:"5449000000996", w:false}, {n:"Vino Rosso", p:5.50, i:"🍷", c:"BEVANDE", b:"304", w:false},
+            {n:"Acqua 1.5L", p:0.40, i:"💧", c:"BEVANDE", b:"8001120002133", w:false}, {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE", b:"5449000000996", w:false}, {n:"Birra 66cl", p:1.40, i:"🍺", c:"BEVANDE", b:"303", w:false}, {n:"Vino Rosso", p:5.50, i:"🍷", c:"BEVANDE", b:"304", w:false},
             // MAKEUP
-            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP", b:"401", w:false}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP", b:"403", w:false},
+            {n:"Rossetto", p:10.0, i:"💄", c:"MAKEUP", b:"401", w:false}, {n:"Mascara", p:12.0, i:"👁️", c:"MAKEUP", b:"402", w:false}, {n:"Smalto", p:5.00, i:"💅", c:"MAKEUP", b:"403", w:false}, {n:"Palette", p:25.0, i:"🎨", c:"MAKEUP", b:"406", w:false},
             // VESTITI
-            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI", b:"501", w:false}, {n:"Jeans", p:35.0, i:"👖", c:"VESTITI", b:"502", w:false},
+            {n:"T-Shirt", p:15.0, i:"👕", c:"VESTITI", b:"501", w:false}, {n:"Jeans", p:35.0, i:"👖", c:"VESTITI", b:"502", w:false}, {n:"Scarpe", p:60.0, i:"👟", c:"VESTITI", b:"509", w:false},
             // CASA
-            {n:"Detersivo", p:5.50, i:"🧼", c:"CASA", b:"601", w:false}, {n:"Carta Ig.", p:3.50, i:"🧻", c:"CASA", b:"603", w:false}
+            {n:"Detersivo", p:5.50, i:"🧼", c:"CASA", b:"601", w:false}, {n:"Carta Ig.", p:3.50, i:"🧻", c:"CASA", b:"603", w:false}, {n:"Shampoo", p:4.00, i:"🧴", c:"CASA", b:"606", w:false}
         ];
 
         const annunci = [
-            {n:"CHIUSURA", m:"Il negozio chiuderà tra 15 minuti. Si prega di recarsi alle casse."},
+            {n:"CHIUSURA", m:"Il negozio chiuderà tra quindici minuti. Si prega di recarsi alle casse."},
             {n:"CASSA 5", m:"Si prega di aprire la cassa numero cinque."},
             {n:"BAMBINO", m:"Un bambino di nome Marco aspetta i genitori al banco informazioni."}
         ];
 
-        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_v6')) || baseProd;
+        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_v8')) || baseProd;
         let carrello = [], qta = 1, scanner = null, audioCtx = null, mode = "environment";
-        let pendingI = null, venditeTotal = 0;
+        let pendingI = null;
 
         window.onload = () => {
             generaTab(); filtra('TUTTI');
@@ -189,13 +211,13 @@
             if(btn) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
         }
 
-        // SCANNER CON RIQUADRO BIANCO (MIRINO)
+        // SCANNER CON MIRINO BIANCO (RIPRISTINATO)
         async function initScanner() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             document.getElementById('btn-cam').style.display = 'none';
             if (scanner) await scanner.stop();
             scanner = new Html5Qrcode("reader");
-            // Configurazione con qrbox (il quadrato bianco)
+            // IL SEGRETO: Definire qrbox attiva i 4 angoli bianchi
             scanner.start({ facingMode: mode }, { fps: 20, qrbox: { width: 250, height: 150 } }, (b) => { aggiungi(b); });
         }
 
@@ -229,7 +251,6 @@
             document.getElementById('st-total').innerText = tot.toFixed(2) + " €";
         }
 
-        // PAGAMENTO CONTANTI
         function openCash() {
             const tot = parseFloat(document.getElementById('st-total').innerText);
             if(tot <= 0) return;
@@ -244,7 +265,6 @@
             document.getElementById('resto-display').innerText = "Resto: " + (diff > 0 ? diff.toFixed(2) : "0.00") + " €";
         }
 
-        // PAGAMENTO CARTA
         function openCardSelect() {
             if(parseFloat(document.getElementById('st-total').innerText) <= 0) return;
             document.getElementById('modal-select-card').style.display = 'flex';
@@ -260,10 +280,10 @@
                 s.innerText = "PAGAMENTO OK!"; 
                 beep(1000, 0.1, 1.0); setTimeout(() => beep(1200, 0.1, 1.0), 150); 
             }, 4000);
-            setTimeout(() => { concludi('CARTA'); closeM('modal-pos'); }, 6000);
+            setTimeout(() => { concludi(); closeM('modal-pos'); }, 6000);
         }
 
-        function concludi(tipo) {
+        function concludi() {
             carrello = []; render(); 
             closeM('modal-cash'); 
             document.getElementById('cash-received').value = "";
@@ -280,7 +300,7 @@
         }
 
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
-        function resetDB() { if(confirm("Resettare?")) { localStorage.removeItem('cassa_pro_v6'); location.reload(); } }
+        function resetDB() { if(confirm("Resettare?")) { localStorage.removeItem('cassa_pro_v8'); location.reload(); } }
         
         function beep(f, d, v) {
             if(!audioCtx) return;
