@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cassa Pro Turbo iPad</title>
-    <!-- Libreria Scanner con supporto accelerazione hardware -->
+    <title>Cassa Pro - Full Vision Scanner</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --bg: #cfd8dc; }
@@ -17,10 +16,9 @@
             display: flex; 
             height: 100vh; 
             overflow: hidden; 
-            transition: flex-direction 0.3s;
         }
 
-        /* ORIENTAMENTO DINAMICO */
+        /* ORIENTAMENTO DINAMICO IPAD */
         @media (orientation: landscape) {
             body { flex-direction: row; }
             #inventory-side { flex: 7; border-right: 3px solid #999; }
@@ -28,46 +26,44 @@
         }
         @media (orientation: portrait) {
             body { flex-direction: column; }
-            #inventory-side { flex: 6; border-bottom: 3px solid #999; }
-            #receipt-side { flex: 4; }
+            #inventory-side { flex: 5.5; border-bottom: 3px solid #999; }
+            #receipt-side { flex: 4.5; }
         }
 
-        /* LATO PRODOTTI */
         #inventory-side { display: flex; flex-direction: column; padding: 10px; height: 100%; overflow: hidden; }
-        
-        /* SCANNER POTENZIATO */
+
+        /* AREA SCANNER FULL VISION */
         #scanner-area { 
             background: #000; border-radius: 15px; overflow: hidden; 
-            margin-bottom: 10px; position: relative; min-height: 200px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 10px; position: relative; flex-shrink: 0;
+            height: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            border: 2px solid #555;
         }
-        #reader { width: 100% !important; border: none !important; }
+        #reader { width: 100% !important; height: 100% !important; }
+        #reader video { object-fit: cover !important; } /* Forza il video a riempire il box */
 
-        /* COMANDI TELECAMERA */
         .cam-controls {
             position: absolute; top: 10px; right: 10px; z-index: 100;
-            display: flex; gap: 10px;
         }
-        .btn-cam { 
-            background: rgba(255,255,255,0.8); border: none; padding: 10px; 
-            border-radius: 50%; width: 50px; height: 50px; font-size: 20px; 
-            cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        .btn-circle { 
+            background: rgba(255,255,255,0.9); border: none; width: 50px; height: 50px; 
+            border-radius: 50%; font-size: 24px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
-        /* GRIGLIA E TABS */
+        /* TABS E GRIGLIA */
         .nav-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 8px; flex-shrink: 0; }
-        .tab { padding: 12px 18px; background: #b0bec5; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .tab { padding: 12px 20px; background: #b0bec5; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; white-space: nowrap; }
         .tab.active { background: var(--primary); color: white; }
 
         #grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
             gap: 10px; overflow-y: auto; flex-grow: 1; background: #eee; 
             padding: 10px; border-radius: 10px;
         }
         .p-card { 
-            background: white; border: none; border-radius: 12px; padding: 8px; 
+            background: white; border: none; border-radius: 12px; padding: 10px; 
             text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            border-bottom: 4px solid #90a4ae; min-height: 105px;
+            border-bottom: 4px solid #90a4ae; min-height: 100px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .p-card:active { background: #e3f2fd; transform: scale(0.95); }
@@ -78,14 +74,15 @@
         /* SCONTRINO */
         #receipt-side { background: #455a64; padding: 12px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
         #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 5px; }
-        .divider { border-top: 1px dashed #000; margin: 8px 0; }
+        .divider { border-top: 1px dashed #000; margin: 10px 0; }
         .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
-        .r-total { font-size: 24px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 8px; margin-top: 10px; }
+        .r-sub { font-size: 10px; margin-bottom: 8px; padding-left: 10px; color: #555; }
+        .r-total { font-size: 24px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; }
 
         /* MODALI */
         .modal { display: none; position: fixed; z-index: 10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 20px; text-align: center; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 22px; text-align: center; }
         .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
     </style>
 </head>
@@ -94,9 +91,9 @@
     <!-- MODALE BILANCIA -->
     <div id="modal-weight" class="modal">
         <div class="modal-content">
-            <h2 id="weight-name">Bilancia Reparto</h2>
-            <input type="number" id="input-weight" step="0.001" placeholder="0.000 kg" autofocus>
-            <button class="btn" style="background:var(--secondary)" onclick="confermaPeso()">PESA E AGGIUNGI</button>
+            <h2 id="weight-name">Peso Prodotto</h2>
+            <input type="number" id="input-weight" step="0.001" placeholder="0.000 kg">
+            <button class="btn" style="background:var(--secondary)" onclick="confermaPeso()">AGGIUNGI AL CARRELLO</button>
             <button class="btn" style="background:#777" onclick="chiudiM('modal-weight')">ANNULLA</button>
         </div>
     </div>
@@ -104,12 +101,12 @@
     <!-- MODALE NUOVO PRODOTTO -->
     <div id="modal-new" class="modal">
         <div class="modal-content">
-            <h3>🆕 Prodotto non in archivio</h3>
+            <h3>📦 Nuovo Prodotto</h3>
             <p id="new-barcode-txt">--</p>
-            <input type="text" id="new-name" placeholder="Nome Prodotto">
+            <input type="text" id="new-name" placeholder="Nome Oggetto">
             <input type="number" id="new-price" placeholder="Prezzo (€)">
-            <label style="display:block; margin: 10px 0;"><input type="checkbox" id="new-w"> Vendita a peso (Kg)</label>
-            <button class="btn" style="background:var(--primary)" onclick="salvaNuovo()">SALVA NELL'ARCHIVIO</button>
+            <label style="display:block; margin: 10px 0; font-weight:bold;"><input type="checkbox" id="new-w"> Vendita a peso (Kg)</label>
+            <button class="btn" style="background:var(--primary)" onclick="salvaNuovo()">SALVA E AGGIUNGI</button>
             <button class="btn" style="background:#777" onclick="chiudiM('modal-new')">ANNULLA</button>
         </div>
     </div>
@@ -119,9 +116,9 @@
         <div id="scanner-area">
             <div id="reader"></div>
             <div class="cam-controls">
-                <button class="btn-cam" onclick="switchCamera()">🔄</button>
+                <button class="btn-circle" onclick="switchCamera()">🔄</button>
             </div>
-            <button id="btn-start-cam" onclick="iniziaCassa()" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background:var(--secondary); color:white; border:none; border-radius:12px; font-weight:bold; z-index:10; box-shadow: 0 4px 15px rgba(0,0,0,0.4);">📷 APRI CASSA E SCANNER</button>
+            <button id="btn-start" onclick="initApp()" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background:var(--secondary); color:white; border:none; border-radius:15px; font-weight:bold; z-index:100;">📷 ATTIVA SCANNER E AUDIO</button>
         </div>
 
         <div class="nav-tabs" id="tabs"></div>
@@ -131,10 +128,10 @@
     <div id="receipt-side">
         <div id="paper">
             <div style="text-align:center; font-size:11px;">
-                <strong style="font-size:16px;">SUPERMERCATO TURBO PRO</strong><br>
-                DISPOSITIVO ACCELERATO HARDWARE<br>
+                <strong style="font-size:16px;">SUPERMERCATO FULL-VISION</strong><br>
+                SCANNER AD AMPIA INQUADRATURA<br>
                 <div id="st-date">--/--/-- --:--</div>
-                <div id="st-op">CASSIERE: 001</div>
+                <div>OP: CASSIERE PRO</div>
             </div>
             <div class="divider"></div>
             <div id="st-items"></div>
@@ -144,34 +141,58 @@
                 <span id="st-total">0.00 €</span>
             </div>
         </div>
-        <button class="btn" style="background:var(--secondary)" onclick="alert('Pagamento Contanti...')">PAGA CONTANTI</button>
-        <button class="btn" style="background:var(--warning)" onclick="alert('Pagamento Carta...')">PAGA CARTA</button>
+        <button class="btn" style="background:var(--secondary)" onclick="alert('Pagamento...')">PAGA CONTANTI</button>
+        <button class="btn" style="background:var(--warning)" onclick="alert('POS...')">PAGA CARTA</button>
         <button class="btn" style="background:#222; font-size:10px;" onclick="resetDB()">RESET ARCHIVIO</button>
     </div>
 
     <script>
-        // Database iniziale (100+ prodotti abbreviati per velocità)
-        let baseProd = [
+        const baseProd = [
+            {n:"Pasta Barilla", p:0.85, i:"🍝", c:"DISPENSA", b:"8076809513753", w:false},
             {n:"Pane", p:3.50, i:"🥖", c:"FRESCHI", b:"001", w:true},
-            {n:"Mele", p:1.90, i:"🍎", c:"FRESCHI", b:"002", w:true},
-            {n:"Carne", p:15.0, i:"🥩", c:"FRESCHI", b:"003", w:true},
-            {n:"Pasta", p:0.85, i:"🍝", c:"DISPENSA", b:"8076809513753", w:false},
-            {n:"Acqua", p:0.40, i:"💧", b:"8001120002133", w:false},
-            {n:"Coca Cola", p:1.80, i:"🥤", b:"5449000000996", w:false}
-            // ... il sistema caricherà il resto dinamicamente
+            {n:"Coca Cola", p:1.80, i:"🥤", c:"BEVANDE", b:"5449000000996", w:false}
         ];
 
-        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_db')) || baseProd;
+        let prodotti = JSON.parse(localStorage.getItem('cassa_full_db')) || baseProd;
         let carrello = [], scanner = null, currentFacingMode = "environment";
-        let audioCtx = null, pendingBarcode = "", pendingItem = null;
+        let audioCtx = null, pendingBarcode = "", pendingItem = null, lastScanTime = 0;
 
         window.onload = () => {
-            const cats = ['TUTTI', 'FRESCHI', 'DISPENSA', 'BEVANDE', 'MAKEUP', 'CASA'];
+            const cats = ['TUTTI', 'FRESCHI', 'DISPENSA', 'BEVANDE', 'MAKEUP', 'VESTITI'];
             document.getElementById('tabs').innerHTML = cats.map(c => `<button class="tab" onclick="filtra('${c}', this)">${c}</button>`).join('');
             document.getElementById('tabs').children[0].classList.add('active');
             filtra('TUTTI');
             setInterval(() => { document.getElementById('st-date').innerText = new Date().toLocaleString(); }, 1000);
         };
+
+        function initApp() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            document.getElementById('btn-start').style.display = 'none';
+            startScanner();
+        }
+
+        function startScanner() {
+            if (scanner) scanner.stop();
+            scanner = new Html5Qrcode("reader");
+            const config = { 
+                fps: 30, 
+                qrbox: undefined, // ELIMINATO IL RETTANGOLO: Scansiona tutto lo schermo
+                aspectRatio: 1.0,
+                experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+            };
+            scanner.start({ facingMode: currentFacingMode }, config, (b) => { 
+                const now = Date.now();
+                if (now - lastScanTime > 2000) { // Evita letture multiple
+                    aggiungi(b);
+                    lastScanTime = now;
+                }
+            });
+        }
+
+        function switchCamera() {
+            currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
+            startScanner();
+        }
 
         function filtra(cat, btn) {
             const g = document.getElementById('grid');
@@ -181,30 +202,6 @@
                 g.innerHTML += `<button class="p-card" onclick="aggiungi('${p.b}')"><span class="emoji">${p.i || '📦'}</span><span class="name">${p.n}</span><span class="price">${p.p.toFixed(2)}€${p.w?'/kg':''}</span></button>`;
             });
             if(btn) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
-        }
-
-        async function iniziaCassa() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            document.getElementById('btn-start-cam').style.display = 'none';
-            startScanner();
-        }
-
-        function startScanner() {
-            if (scanner) scanner.stop();
-            scanner = new Html5Qrcode("reader");
-            const config = { 
-                fps: 25, // Più alto per fluidità iPad
-                qrbox: { width: 280, height: 180 },
-                aspectRatio: 1.0,
-                experimentalFeatures: { useBarCodeDetectorIfSupported: true } // Sfrutta il chip Apple!
-            };
-
-            scanner.start({ facingMode: currentFacingMode }, config, (b) => { aggiungi(b); });
-        }
-
-        function switchCamera() {
-            currentFacingMode = (currentFacingMode === "environment") ? "user" : "environment";
-            startScanner();
         }
 
         function aggiungi(barcode) {
@@ -221,7 +218,7 @@
                 }
             } else {
                 pendingBarcode = barcode;
-                document.getElementById('new-barcode-txt').innerText = "COD: " + barcode;
+                document.getElementById('new-barcode-txt').innerText = "NUOVO CODICE: " + barcode;
                 document.getElementById('modal-new').style.display = 'flex';
             }
         }
@@ -242,7 +239,7 @@
             if(n && p > 0) {
                 const item = {n, p, b: pendingBarcode, w, i:"📦", c:"TUTTI"};
                 prodotti.push(item);
-                localStorage.setItem('cassa_pro_db', JSON.stringify(prodotti));
+                localStorage.setItem('cassa_full_db', JSON.stringify(prodotti));
                 filtra('TUTTI'); chiudiM('modal-new'); aggiungi(pendingBarcode);
             }
         }
@@ -252,13 +249,13 @@
             cont.innerHTML = ""; let tot = 0;
             carrello.forEach(i => {
                 let sub = i.p * i.q; tot += sub;
-                cont.innerHTML += `<div class="r-row"><span>${i.n}</span><span>${sub.toFixed(2)}€</span></div><div style="font-size:10px; margin-bottom:5px;">${i.w?i.q.toFixed(3)+'kg':i.q} x ${i.p.toFixed(2)}</div>`;
+                cont.innerHTML += `<div class="r-row"><span>${i.n}</span><span>${sub.toFixed(2)}€</span></div><div class="r-sub">${i.w?i.q.toFixed(3)+'kg':i.q} x ${i.p.toFixed(2)}</div>`;
             });
             document.getElementById('st-total').innerText = tot.toFixed(2) + " €";
         }
 
         function chiudiM(id) { document.getElementById(id).style.display = 'none'; }
-        function resetDB() { if(confirm("Resettare archivio?")) { localStorage.removeItem('cassa_pro_db'); location.reload(); } }
+        function resetDB() { if(confirm("Cancellare l'archivio?")) { localStorage.removeItem('cassa_full_db'); location.reload(); } }
         
         function beep() {
             if(!audioCtx) return;
