@@ -3,87 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cassa Supermercato Ultra Pro 100+</title>
+    <title>Cassa Supermercato Pro iPad</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root { --primary: #0056b3; --secondary: #28a745; --danger: #dc3545; --warning: #ff9800; --accent: #673ab7; --bg: #cfd8dc; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- LAYOUT CASSA --- */
-        #main-ui { flex: 7.2; display: flex; flex-direction: column; padding: 10px; gap: 10px; height: 100vh; overflow: hidden; }
-        #receipt-side { flex: 2.8; background: #37474f; display: flex; flex-direction: column; padding: 15px; height: 100vh; border-left: 3px solid #263238; }
+        /* --- LAYOUT PRINCIPALE --- */
+        #inventory-side { flex: 7.2; display: flex; flex-direction: column; padding: 10px; border-right: 2px solid #999; height: 100vh; }
+        #receipt-side { flex: 2.8; background: #455a64; padding: 15px; display: flex; flex-direction: column; height: 100vh; }
 
-        /* Barra Superiore Scanner */
-        #top-bar { display: flex; gap: 10px; height: 160px; flex-shrink: 0; }
-        #btn-trigger-scanner { flex: 2; background: var(--primary); color: white; border: none; border-radius: 15px; font-size: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        #qty-box { flex: 1; background: white; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .qty-btn { background: #607d8b; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; }
-        #qty-val { grid-column: span 2; background: #212529; color: #0f0; font-family: monospace; font-size: 22px; text-align: center; border-radius: 5px; padding: 3px; }
+        /* Area superiore per attivare lo scanner */
+        #scanner-starter { 
+            background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; 
+            display: flex; align-items: center; justify-content: center; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        #btn-open-cam { flex: 2; background: var(--primary); color: white; border: none; border-radius: 10px; padding: 20px; font-size: 22px; font-weight: bold; cursor: pointer; }
 
-        /* Tabs e Griglia */
-        .tabs { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
-        .tab { padding: 12px 15px; background: #b0bec5; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 11px; }
+        /* Quantità */
+        #qty-box { flex: 1; display: flex; align-items: center; background: #eee; border-radius: 10px; padding: 5px; gap: 5px; }
+        .qty-btn { flex: 1; padding: 15px; font-size: 18px; border: none; border-radius: 5px; background: #607d8b; color: white; font-weight: bold; }
+        #qty-display { font-size: 24px; font-weight: bold; color: var(--primary); min-width: 40px; text-align: center; }
+
+        /* Categorie e Prodotti */
+        .nav-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 10px; }
+        .tab { padding: 15px 20px; background: #b0bec5; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 12px; }
         .tab.active { background: var(--primary); color: white; }
         .tab-annunci { background: var(--accent) !important; color: white !important; }
 
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; overflow-y: auto; flex-grow: 1; padding: 10px; background: #eceff1; border-radius: 15px; }
-        .p-card { background: white; border: none; border-radius: 12px; padding: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-bottom: 4px solid #90a4ae; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; }
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; overflow-y: auto; flex-grow: 1; background: #eee; padding: 10px; border-radius: 10px; }
+        .p-card { background: white; border: none; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-bottom: 4px solid #90a4ae; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 105px; }
         .p-card:active { background: #e3f2fd; transform: scale(0.95); }
-        .p-card .emoji { font-size: 30px; }
-        .p-card .name { font-size: 9px; font-weight: bold; margin-top: 3px; height: 22px; overflow: hidden; line-height: 1; }
-        .p-card .price { font-size: 10px; color: var(--primary); font-weight: bold; }
 
-        /* --- SCONTRINO --- */
-        #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 3px; }
-        .r-header { text-align: center; font-size: 10px; }
-        .divider { border-top: 1px dashed #000; margin: 8px 0; }
-        .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; }
-        .r-sub { font-size: 10px; margin-bottom: 5px; padding-left: 10px; color: #555; }
-        .r-total { font-size: 22px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 10px; margin-top: 15px; }
+        /* SCONTRINO */
+        #paper { background: white; padding: 15px; font-family: 'Courier New', monospace; flex: 1; overflow-y: auto; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .r-header { text-align: center; font-size: 11px; }
+        .divider { border-top: 1px dashed #000; margin: 10px 0; }
+        .r-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; margin-bottom: 2px; }
+        .r-sub { font-size: 11px; margin-bottom: 8px; padding-left: 10px; color: #555; }
+        .r-total { font-size: 24px; font-weight: bold; display: flex; justify-content: space-between; border-top: 2px solid #000; padding-top: 10px; margin-top: 10px; }
 
         /* --- MODALI --- */
-        .modal { display: none; position: fixed; z-index: 10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; }
+        .pay-modal { display: none; position: fixed; z-index: 10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items: center; justify-content: center; }
+        .pay-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; }
         input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 22px; text-align: center; }
-        .btn { padding: 18px; border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
-        
-        /* SCANNER POP-UP (STILE FUNZIONANTE) */
-        #scanner-popup { display: none; position: fixed; z-index: 20000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items: center; justify-content: center; }
-        #scanner-container { background: #000; border-radius: 12px; overflow: hidden; width: 350px; height: 250px; border: 3px solid #555; position: relative; }
+        .btn { padding: 20px; border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; }
+
+        /* SCANNER POP-UP (A TUTTO SCHERMO) */
+        #scanner-popup { display: none; position: fixed; z-index: 20000; left:0; top:0; width:100%; height:100%; background:black; }
         #reader { width: 100% !important; height: 100% !important; }
-        #close-scan { position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; border: none; padding: 15px 40px; border-radius: 10px; font-weight: bold; font-size: 18px; }
-        #toggle-cam { position: absolute; top: -60px; right: 0; background: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
+        #close-scanner { position: absolute; top: 20px; right: 20px; z-index: 20001; background: var(--danger); color: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 24px; font-weight: bold; }
+        #toggle-cam { position: absolute; top: 20px; left: 20px; z-index: 20001; background: white; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 24px; }
 
         /* CARTE */
         .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .v-card { padding: 20px; border-radius: 12px; color: white; font-weight: bold; border: none; }
-        #pos-screen { background: #111; color: #0f0; padding: 20px; border-radius: 10px; font-family: monospace; min-height: 80px; border: 2px solid #444; display: flex; align-items: center; justify-content: center; }
+        .v-card { padding: 20px; border-radius: 10px; color: white; font-weight: bold; border: none; }
+        #pos-screen { background: #111; color: #0f0; padding: 20px; border-radius: 10px; font-family: monospace; min-height: 100px; display: flex; align-items: center; justify-content: center; border: 2px solid #444; }
     </style>
 </head>
 <body>
 
-    <!-- SCANNER POP-UP -->
+    <!-- MODALE SCANNER -->
     <div id="scanner-popup">
-        <div style="position:relative;">
-            <button id="toggle-cam" onclick="switchCam()">CAMBIA CAMERA 🔄</button>
-            <div id="scanner-container">
-                <div id="reader"></div>
-            </div>
-            <button id="close-scan" onclick="stopScanner()">CHIUDI</button>
-        </div>
+        <button id="toggle-cam" onclick="switchCam()">🔄</button>
+        <button id="close-scanner" onclick="stopScanner()">X</button>
+        <div id="reader"></div>
     </div>
 
     <!-- MODALE BILANCIA -->
-    <div id="modal-weight" class="modal"><div class="modal-content">
-        <h2 id="w-name">Peso</h2><input type="number" id="w-input" step="0.001" placeholder="0.000 kg">
-        <button class="btn" style="background:var(--secondary)" onclick="confirmW()">CONFERMA</button>
+    <div id="modal-weight" class="pay-modal"><div class="pay-content">
+        <h2 id="w-name">Peso Prodotto</h2><input type="number" id="w-input" step="0.001" placeholder="0.000 kg">
+        <button class="btn" style="background:var(--secondary)" onclick="confirmW()">AGGIUNGI AL CARRELLO</button>
         <button class="btn" style="background:#777" onclick="closeM('modal-weight')">ANNULLA</button>
     </div></div>
 
     <!-- MODALE NUOVO -->
-    <div id="modal-new" class="modal"><div class="modal-content">
-        <h3>📦 Prodotto Sconosciuto</h3><p id="new-b-txt">--</p>
+    <div id="modal-new" class="pay-modal"><div class="pay-content">
+        <h3>📦 Nuovo Prodotto</h3><p id="new-b-txt">--</p>
         <input type="text" id="new-n" placeholder="Nome"><input type="number" id="new-p" placeholder="Prezzo (€)">
         <label style="display:block; margin: 10px 0;"><input type="checkbox" id="new-is-w"> Vendita a peso</label>
         <button class="btn" style="background:var(--primary)" onclick="saveNew()">SALVA</button>
@@ -91,17 +88,17 @@
     </div></div>
 
     <!-- MODALE CONTANTI -->
-    <div id="modal-cash" class="modal"><div class="modal-content">
+    <div id="modal-cash" class="pay-modal"><div class="pay-content">
         <h2 id="cash-tot-txt">Totale: 0.00 €</h2>
-        <input type="number" id="cash-in" placeholder="Somma Ricevuta" oninput="calcResto()">
-        <h1 id="txt-resto" style="color:var(--secondary); font-size:45px;">Resto: 0.00 €</h1>
-        <button class="btn" style="background:var(--secondary)" onclick="concludi('CONTANTI')">STAMPA SCONTRINO</button>
+        <input type="number" id="cash-received" placeholder="Importo Ricevuto" oninput="calcResto()">
+        <h1 id="txt-resto" style="color:var(--secondary); font-size:40px;">Resto: 0.00 €</h1>
+        <button class="btn" style="background:var(--secondary)" onclick="concludi('CONTANTI')">CHIUDI VENDITA</button>
         <button class="btn" style="background:#777" onclick="closeM('modal-cash')">ANNULLA</button>
     </div></div>
 
     <!-- MODALE CARTE -->
-    <div id="modal-select-card" class="modal"><div class="modal-content">
-        <h3>Scegli Circuito</h3>
+    <div id="modal-select-card" class="pay-modal"><div class="pay-content">
+        <h3>Scegli Carta</h3>
         <div class="card-grid">
             <button class="v-card" style="background:#eb001b" onclick="avviaPos('MASTERCARD')">MASTERCARD</button>
             <button class="v-card" style="background:#1a1f71" onclick="avviaPos('VISA')">VISA</button>
@@ -111,21 +108,21 @@
         <button class="btn" style="background:#777" onclick="closeM('modal-select-card')">ANNULLA</button>
     </div></div>
 
-    <div id="modal-pos" class="modal"><div class="modal-content" style="background:#222; color:white;">
+    <div id="modal-pos" class="pay-modal"><div class="pay-content" style="background:#222; color:white;">
         <div id="pos-screen">ATTESA CARTA...</div>
     </div></div>
 
-    <!-- UI PRINCIPALE -->
-    <div id="main-ui">
-        <div id="top-bar">
-            <button id="btn-trigger-scanner" onclick="startScanner()">📷 APRI SCANNER CODICI</button>
+    <!-- INTERFACCIA -->
+    <div id="inventory-side">
+        <div id="scanner-starter">
+            <button id="btn-open-cam" onclick="openScanner()">📷 APRI SCANNER CODICI</button>
             <div id="qty-box">
-                <div id="qty-val">1</div>
-                <button class="qty-btn" onclick="setQ(2)">2</button><button class="qty-btn" onclick="setQ(5)">5</button>
-                <button class="qty-btn" onclick="setQ(10)">10</button><button class="qty-btn" style="background:var(--danger)" onclick="setQ(1)">C</button>
+                <div id="qty-display">1</div>
+                <button class="qty-btn" onclick="setQ(1)">1</button><button class="qty-btn" onclick="setQ(2)">2</button>
+                <button class="qty-btn" onclick="setQ(5)">5</button><button class="qty-btn" onclick="setQ(10)">10</button>
             </div>
         </div>
-        <div class="tabs" id="tabs"></div>
+        <div class="nav-tabs" id="tabs"></div>
         <div id="grid"></div>
     </div>
 
@@ -142,11 +139,11 @@
             <div class="r-total"><span>TOTALE</span><span id="st-total">0.00 €</span></div>
         </div>
         <button class="btn" style="background:var(--secondary)" onclick="openCash()">PAGA CONTANTI</button>
-        <button class="btn" style="background:var(--warning)" onclick="openCardSelect()">PAGA CARTA</button>
+        <button class="btn" style="background:var(--warning)" onclick="openCard()">PAGA CARTA</button>
         <button class="btn" style="background:#263238; font-size:10px;" onclick="resetDB()">RESET ARCHIVIO</button>
     </div>
 
-    <script>
+<script>
         const baseProd = [
             // FRESCHI (20)
             {n:"Mela Fuji", p:1.20, i:"🍎", c:"FRESCHI", b:"101", w:true}, {n:"Banana", p:0.90, i:"🍌", c:"FRESCHI", b:"102", w:true}, {n:"Arancia", p:1.10, i:"🍊", c:"FRESCHI", b:"103", w:true}, {n:"Insalata", p:1.50, i:"🥬", c:"FRESCHI", b:"108", w:true}, {n:"Uova x6", p:2.10, i:"🥚", c:"FRESCHI", b:"112", w:false}, {n:"Latte 1L", p:1.40, i:"🥛", c:"FRESCHI", b:"113", w:false}, {n:"Bistecca", p:15.0, i:"🥩", c:"FRESCHI", b:"117", w:true}, {n:"Pollo", p:6.50, i:"🍗", c:"FRESCHI", b:"116", w:true}, {n:"Pesce", p:18.0, i:"🐟", c:"FRESCHI", b:"118", w:true}, {n:"Pane", p:3.50, i:"🥖", c:"FRESCHI", b:"119", w:true}, {n:"Yogurt", p:0.90, i:"🍦", c:"FRESCHI", b:"120", w:false}, {n:"Pera", p:1.30, i:"🍐", c:"FRESCHI", b:"104", w:true}, {n:"Fragole", p:3.50, i:"🍓", c:"FRESCHI", b:"106", w:true}, {n:"Uva", p:2.80, i:"🍇", c:"FRESCHI", b:"107", w:true}, {n:"Pomodoro", p:1.80, i:"🍅", c:"FRESCHI", b:"109", w:true}, {n:"Carota", p:0.80, i:"🥕", c:"FRESCHI", b:"110", w:true}, {n:"Patata kg", p:1.00, i:"🥔", c:"FRESCHI", b:"111", w:true}, {n:"Burro", p:2.50, i:"🧈", c:"FRESCHI", b:"114", w:false}, {n:"Formaggio", p:4.50, i:"🧀", c:"FRESCHI", b:"115", w:true}, {n:"Hamburger", p:4.50, i:"🍔", c:"FRESCHI", b:"029", w:false},
@@ -163,13 +160,12 @@
         ];
 
         const annunci = [
-            {n:"CHIUSURA", m:"Gentili clienti, il negozio chiuderà tra 15 minuti. Vi preghiamo di recarvi alle casse."},
-            {n:"CASSA 5", m:"Si prega di aprire la cassa numero cinque. Grazie."},
-            {n:"RESPONSABILE", m:"Il responsabile è richiesto nel reparto casse."},
+            {n:"CHIUSURA", m:"Attenzione, il negozio chiuderà tra 15 minuti. Si prega di recarsi alle casse."},
+            {n:"CASSA 5", m:"Si prega di aprire la cassa numero cinque."},
             {n:"BAMBINO", m:"Un bambino di nome Marco aspetta i genitori al banco informazioni."}
         ];
 
-        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_vFinal')) || baseProd;
+        let prodotti = JSON.parse(localStorage.getItem('cassa_pro_v15')) || baseProd;
         let carrello = [], qta = 1, scanner = null, audioCtx = null, mode = "environment", pendingI = null, pendingB = "";
 
         window.onload = () => {
@@ -192,18 +188,22 @@
             } else {
                 const lista = (cat === 'TUTTI') ? prodotti : prodotti.filter(p => p.c === cat);
                 lista.forEach(p => {
-                    grid.innerHTML += `<button class="p-card" onclick="aggiungi('${p.b}')"><span class="emoji" style="font-size:30px">${p.i}</span><span class="name">${p.n}</span><span style="color:var(--primary); font-weight:bold; font-size:11px;">${p.p.toFixed(2)}€</span></button>`;
+                    grid.innerHTML += `<button class="p-card" onclick="aggiungi('${p.b}')"><span class="emoji">${p.i}</span><span class="name">${p.n}</span><span style="color:var(--primary); font-weight:bold; font-size:11px;">${p.p.toFixed(2)}€</span></button>`;
                 });
             }
             if(btn) { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); btn.classList.add('active'); }
         }
 
-        async function startScanner() {
+        // --- LOGICA SCANNER POP-UP (Dalla versione funzionante) ---
+        async function openScanner() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            document.getElementById('scanner-popup').style.display = 'flex';
+            document.getElementById('scanner-popup').style.display = 'block';
             scanner = new Html5Qrcode("reader");
-            // IL SEGRETO: qrbox: 250 attiva i 4 angoli bianchi (il mirino)
-            scanner.start({ facingMode: mode }, { fps: 20, qrbox: 250 }, (b) => { aggiungi(b); stopScanner(); });
+            // IL SEGRETO: qrbox e facingMode corretti per attivare i 4 angoli bianchi
+            scanner.start({ facingMode: mode }, { fps: 20, qrbox: 250 }, (b) => {
+                aggiungi(b);
+                stopScanner(); 
+            });
         }
 
         function stopScanner() {
@@ -211,15 +211,19 @@
             else document.getElementById('scanner-popup').style.display = 'none';
         }
 
-        function switchCam() { mode = (mode === "environment") ? "user" : "environment"; stopScanner(); setTimeout(startScanner, 500); }
-        function setQ(n) { qta = n; document.getElementById('qty-val').innerText = n; }
+        function switchCam() { mode = (mode === "environment") ? "user" : "environment"; stopScanner(); setTimeout(openScanner, 400); }
+        function setQ(n) { qta = n; document.getElementById('qty-display').innerText = n; }
 
         function aggiungi(barcode) {
             const p = prodotti.find(i => i.b === barcode);
             if (p) {
-                if (p.w) { pendingI = p; document.getElementById('weight-item-name').innerText = p.n; document.getElementById('modal-weight').style.display = 'flex'; }
+                if (p.w) { pendingI = p; document.getElementById('w-name').innerText = p.n; document.getElementById('modal-weight').style.display = 'flex'; }
                 else { let es = carrello.find(i => i.b === barcode); if(es) es.q += qta; else carrello.push({...p, q: qta}); beep(900, 0.1, 1.0); render(); }
-            } else { pendingB = barcode; document.getElementById('new-b-txt').innerText = "COD: " + barcode; document.getElementById('modal-new').style.display = 'flex'; }
+            } else {
+                pendingB = barcode;
+                document.getElementById('new-b-txt').innerText = "COD: " + barcode;
+                document.getElementById('modal-new').style.display = 'flex';
+            }
             setQ(1);
         }
 
@@ -232,7 +236,7 @@
             const n = document.getElementById('new-n').value, p = parseFloat(document.getElementById('new-p').value), w = document.getElementById('new-is-w').checked;
             if(n && p > 0) {
                 prodotti.push({n, p, b: pendingB, w, i:"📦", c:"TUTTI"});
-                localStorage.setItem('cassa_pro_vFinal', JSON.stringify(prodotti));
+                localStorage.setItem('cassa_pro_v15', JSON.stringify(prodotti));
                 filtra('TUTTI'); closeM('modal-new'); aggiungi(pendingB);
             }
         }
@@ -252,21 +256,21 @@
         }
 
         function calcResto() {
-            let t = parseFloat(document.getElementById('st-total').innerText), r = parseFloat(document.getElementById('cash-in').value) || 0;
+            let t = parseFloat(document.getElementById('st-total').innerText), r = parseFloat(document.getElementById('cash-received').value) || 0;
             document.getElementById('txt-resto').innerText = "Resto: " + (r-t > 0 ? (r-t).toFixed(2) : "0.00") + " €";
         }
 
-        function openCardSelect() { if(parseFloat(document.getElementById('st-total').innerText) > 0) document.getElementById('modal-select-card').style.display = 'flex'; }
+        function openCard() { if(parseFloat(document.getElementById('st-total').innerText) > 0) document.getElementById('modal-select-card').style.display = 'flex'; }
 
         function avviaPos(brand) {
             closeM('modal-select-card'); document.getElementById('modal-pos').style.display = 'flex';
             const s = document.getElementById('pos-screen'); s.innerText = "CONTATTO " + brand + "...";
-            setTimeout(() => s.innerText = "AUTORIZZAZIONE...", 2000);
-            setTimeout(() => { s.innerText = "PAGAMENTO OK!"; beep(1000, 0.1, 1.0); setTimeout(() => beep(1200, 0.1, 1.0), 150); }, 3500);
-            setTimeout(() => { carrello = []; render(); closeM('modal-pos'); alert("VENDITA CONCLUSA!"); }, 5000);
+            setTimeout(() => s.innerText = "AUTORIZZAZIONE...", 1800);
+            setTimeout(() => { s.innerText = "PAGAMENTO OK!"; beep(1000, 0.1, 1.0); setTimeout(() => beep(1200, 0.1, 1.0), 120); }, 3200);
+            setTimeout(() => { carrello = []; render(); closeM('modal-pos'); alert("VENDITA CONCLUSA!"); }, 4500);
         }
 
-        function concludi() { carrello = []; render(); closeM('modal-cash'); document.getElementById('cash-in').value = ""; alert("VENDITA CONCLUSA!"); }
+        function concludi() { carrello = []; render(); closeM('modal-cash'); document.getElementById('cash-received').value = ""; alert("VENDITA CONCLUSA!"); }
 
         function faiAnnuncio(m) {
             beep(600, 0.2, 0.5); setTimeout(() => beep(450, 0.3, 0.5), 180);
@@ -274,7 +278,7 @@
         }
 
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
-        function resetDB() { if(confirm("Resettare l'archivio?")) { localStorage.removeItem('cassa_pro_vFinal'); location.reload(); } }
+        function resetDB() { if(confirm("Resettare l'archivio?")) { localStorage.removeItem('cassa_pro_v15'); location.reload(); } }
         
         function beep(f, d, v) {
             if(!audioCtx) return;
